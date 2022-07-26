@@ -7,19 +7,21 @@
             "field": "ga4_user_date",
             "data_type": "date",
             "granularity": "day"
-        }
+        },
+        cluster_by = 'ga4_user_id'
     )
 }}
 
 
 WITH t1 AS (
-    SELECT DISTINCT
+    SELECT
         events.user_pseudo_id AS ga4_user_id,
-        SAFE_CAST(events.event_date AS DATE FORMAT 'YYYYMMDD') AS ga4_user_date
+        DATE(TIMESTAMP_MICROS(events.user_first_touch_timestamp)) AS ga4_user_date
     FROM
         {{ source('ga4', 'events') }} AS events
     WHERE
         _TABLE_SUFFIX NOT LIKE '%intraday%'
+        AND DATE(TIMESTAMP_MICROS(events.user_first_touch_timestamp)) < DATE(CURRENT_DATE())
         AND PARSE_DATE('%Y%m%d', _TABLE_SUFFIX) > DATE_SUB(DATE(CURRENT_DATE()), INTERVAL {{ var('VAR_INTERVAL') }} DAY)
     
     {% if is_incremental() %}
@@ -29,7 +31,7 @@ WITH t1 AS (
 ),
 
 t2 AS (
-    SELECT
+    SELECT DISTINCT
         t1.ga4_user_id,
         t1.ga4_user_date
     FROM

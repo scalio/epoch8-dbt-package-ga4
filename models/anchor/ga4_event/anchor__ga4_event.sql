@@ -7,7 +7,8 @@
             "field": "ga4_event_date",
             "data_type": "date",
             "granularity": "day"
-        }
+        },
+        cluster_by = 'ga4_event_id'
     )
 }}
 
@@ -19,7 +20,8 @@ WITH t1 AS (
                 CONCAT(
                     SAFE_CAST(events.event_timestamp AS STRING),
                     SAFE_CAST(events.event_name AS STRING),
-                    SAFE_CAST(events.user_pseudo_id AS STRING)
+                    SAFE_CAST(events.user_pseudo_id AS STRING),
+                    SAFE_CAST(events.event_server_timestamp_offset AS STRING)
                     )
                 )
             ) AS ga4_event_id,

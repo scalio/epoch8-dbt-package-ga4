@@ -4,29 +4,20 @@
         materialized = 'incremental',
         incremental_strategy = 'insert_overwrite',
         partition_by = {
-            "field": "ga4_user__made__ga4_event__date",
+            "field": "ga4_user_date",
             "data_type": "date",
             "granularity": "day"
         },
-        cluster_by = ['ga4_user_id', 'ga4_event_id']
+        cluster_by = 'ga4_user_id'
     )
 }}
 
 
 WITH t1 AS (
-    SELECT DISTINCT
+    SELECT
         events.user_pseudo_id AS ga4_user_id,
-        TO_HEX(
-            MD5(
-                CONCAT(
-                    SAFE_CAST(events.event_timestamp AS STRING),
-                    SAFE_CAST(events.event_name AS STRING),
-                    SAFE_CAST(events.user_pseudo_id AS STRING),
-                    SAFE_CAST(events.event_server_timestamp_offset AS STRING)
-                    )
-                )
-            ) AS ga4_event_id,
-        SAFE_CAST(events.event_date AS DATE FORMAT 'YYYYMMDD') AS ga4_user__made__ga4_event__date
+        DATE(TIMESTAMP_MICROS(events.user_first_touch_timestamp)) AS ga4_user_date,
+        events.privacy_info.analytics_storage AS ga4_user_privacy_info_analytics_storage
     FROM
         {{ source('ga4', 'events') }} AS events
     WHERE
@@ -40,23 +31,23 @@ WITH t1 AS (
 ),
 
 t2 AS (
-    SELECT
+    SELECT DISTINCT
         t1.ga4_user_id,
-        t1.ga4_event_id,
-        t1.ga4_user__made__ga4_event__date
+        t1.ga4_user_date,
+        t1.ga4_user_privacy_info_analytics_storage
     FROM
         t1
     WHERE
         t1.ga4_user_id IS NOT NULL
-        AND t1.ga4_event_id IS NOT NULL
-        AND t1.ga4_user__made__ga4_event__date IS NOT NULL
+        AND t1.ga4_user_date IS NOT NULL
+        AND t1.ga4_user_privacy_info_analytics_storage IS NOT NULL
 ),
 
 final AS (
     SELECT
         t2.ga4_user_id,
-        t2.ga4_event_id,
-        t2.ga4_user__made__ga4_event__date
+        t2.ga4_user_date,
+        t2.ga4_user_privacy_info_analytics_storage
     FROM
         t2
 )
@@ -65,5 +56,5 @@ SELECT * FROM final
 
     {% if is_incremental() %}
     WHERE
-        final.ga4_user__made__ga4_event__date > DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR_INTERVAL_INCREMENTAL') }} DAY)
+        final.ga4_user_date > DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR_INTERVAL_INCREMENTAL') }} DAY)
     {% endif %}

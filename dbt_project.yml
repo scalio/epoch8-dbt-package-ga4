@@ -27,14 +27,13 @@ clean-targets:         # directories to be removed by `dbt clean`
 vars:
   VAR_PROJECT: "holybricks"
   VAR_DATASET: "analytics_202294062"
-  VAR_INTERVAL: 14
-  VAR_INTERVAL_INCREMENTAL: 7
+  VAR_INTERVAL: 7
+  VAR_INTERVAL_INCREMENTAL: 2
 
 # {{ env_var('DBT_PROJECT') }}
 # {{ env_var('DBT_DATASET') }}
 # {{ var('VAR_PROJECT') }}
 # {{ var('VAR_DATASET') }}
-
 
 
 # Configuring models

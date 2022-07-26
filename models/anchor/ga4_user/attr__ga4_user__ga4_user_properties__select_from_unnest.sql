@@ -7,7 +7,8 @@
             "field": "ga4_user_date",
             "data_type": "date",
             "granularity": "day"
-        }
+        },
+        cluster_by = 'ga4_user_id'
     )
 }}
 

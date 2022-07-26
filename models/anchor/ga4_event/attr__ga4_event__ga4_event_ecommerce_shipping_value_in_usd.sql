@@ -8,7 +8,7 @@
             "data_type": "date",
             "granularity": "day"
         },
-        cluster_by = ['ga4_event_id', 'ga4_event_params_key']
+        cluster_by = 'ga4_event_id'
     )
 }}
 
@@ -26,14 +26,9 @@ WITH t1 AS (
                 )
             ) AS ga4_event_id,
         SAFE_CAST(events.event_date AS DATE FORMAT 'YYYYMMDD') AS ga4_event_date,
-        ga4_event_params.key AS ga4_event_params_key,
-        ga4_event_params.value.string_value AS ga4_event_params_string_value,
-        ga4_event_params.value.int_value AS ga4_event_params_int_value,
-        ga4_event_params.value.float_value AS ga4_event_params_float_value,
-        ga4_event_params.value.double_value AS ga4_event_params_double_value
+        events.ecommerce.shipping_value_in_usd AS ga4_event_ecommerce_shipping_value_in_usd
     FROM
-        {{ source('ga4', 'events') }} AS events,
-        UNNEST(events.event_params) AS ga4_event_params
+        {{ source('ga4', 'events') }} AS events
     WHERE
         _TABLE_SUFFIX NOT LIKE '%intraday%'
         AND PARSE_DATE('%Y%m%d', _TABLE_SUFFIX) > DATE_SUB(DATE(CURRENT_DATE()), INTERVAL {{ var('VAR_INTERVAL') }} DAY)
@@ -48,28 +43,20 @@ t2 AS (
     SELECT
         t1.ga4_event_id,
         t1.ga4_event_date,
-        t1.ga4_event_params_key,
-        t1.ga4_event_params_string_value,
-        t1.ga4_event_params_int_value,
-        t1.ga4_event_params_float_value,
-        t1.ga4_event_params_double_value
+        t1.ga4_event_ecommerce_shipping_value_in_usd
     FROM
         t1
     WHERE
         t1.ga4_event_id IS NOT NULL
         AND t1.ga4_event_date IS NOT NULL
-        AND t1.ga4_event_params_key IS NOT NULL
+        AND t1.ga4_event_ecommerce_shipping_value_in_usd IS NOT NULL
 ),
 
 final AS (
     SELECT
         t2.ga4_event_id,
         t2.ga4_event_date,
-        t2.ga4_event_params_key,
-        t2.ga4_event_params_string_value,
-        t2.ga4_event_params_int_value,
-        t2.ga4_event_params_float_value,
-        t2.ga4_event_params_double_value
+        t2.ga4_event_ecommerce_shipping_value_in_usd
     FROM
         t2
 )

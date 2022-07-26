@@ -1,10 +1,10 @@
 {{
     config(
-        enabled=true,
+        enabled=false,
         materialized = 'incremental',
         incremental_strategy = 'insert_overwrite',
         partition_by = {
-            "field": "ga4_event_date",
+            "field": "ga4_user__made__ga4_event__date",
             "data_type": "date",
             "granularity": "day"
         },
@@ -25,7 +25,8 @@ WITH t1 AS (
                     )
                 )
             ) AS ga4_event_id,
-        SAFE_CAST(events.event_date AS DATE FORMAT 'YYYYMMDD') AS ga4_event_date,
+        DATE(TIMESTAMP_MICROS(events.event_timestamp)) AS ga4_user__made__ga4_event__date,
+        -- TIMESTAMP_MICROS(events.event_timestamp) AS ga4_user__made__ga4_event__timestamp,
         ga4_event_params.key AS ga4_event_params_key,
         ga4_event_params.value.string_value AS ga4_event_params_string_value,
         ga4_event_params.value.int_value AS ga4_event_params_int_value,
@@ -47,7 +48,8 @@ WITH t1 AS (
 t2 AS (
     SELECT
         t1.ga4_event_id,
-        t1.ga4_event_date,
+        t1.ga4_user__made__ga4_event__date,
+        -- t1.ga4_user__made__ga4_event__timestamp,
         t1.ga4_event_params_key,
         t1.ga4_event_params_string_value,
         t1.ga4_event_params_int_value,
@@ -57,14 +59,15 @@ t2 AS (
         t1
     WHERE
         t1.ga4_event_id IS NOT NULL
-        AND t1.ga4_event_date IS NOT NULL
+        AND t1.ga4_user__made__ga4_event__date IS NOT NULL
         AND t1.ga4_event_params_key IS NOT NULL
 ),
 
 final AS (
     SELECT
         t2.ga4_event_id,
-        t2.ga4_event_date,
+        t2.ga4_user__made__ga4_event__date,
+        -- t2.ga4_user__made__ga4_event__timestamp,
         t2.ga4_event_params_key,
         t2.ga4_event_params_string_value,
         t2.ga4_event_params_int_value,
@@ -78,5 +81,5 @@ SELECT * FROM final
 
     {% if is_incremental() %}
     WHERE
-        final.ga4_event_date > DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR_INTERVAL_INCREMENTAL') }} DAY)
+        final.ga4_user__made__ga4_event__date > DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR_INTERVAL_INCREMENTAL') }} DAY)
     {% endif %}

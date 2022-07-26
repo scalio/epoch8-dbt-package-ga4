@@ -1,7 +1,7 @@
 {% macro macro__get_max_patition_date(schema, table) %}
 
     {% set query %}
-        SELECT SAFE_CAST(MAX(partition_id) AS DATE FORMAT 'YYYYMMDD') AS dbt_max_partition
+        SELECT COALESCE(SAFE_CAST(MAX(partition_id) AS DATE FORMAT 'YYYYMMDD'), DATE(CURRENT_DATE())) AS dbt_max_partition
         FROM `{{ schema }}`.`INFORMATION_SCHEMA`.`PARTITIONS`
         WHERE table_name = '{{ table }}' AND partition_id != '__NULL__'
     {% endset %}
