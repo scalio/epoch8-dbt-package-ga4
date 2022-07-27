@@ -69,7 +69,7 @@ SELECT * FROM final
 
     {% if is_incremental() %}
     WHERE
-        final.ga4_session_timestamp < COALESCE((
+        final.ga4_session_timestamp <= COALESCE((
             SELECT
                 this.ga4_session_timestamp
             FROM
