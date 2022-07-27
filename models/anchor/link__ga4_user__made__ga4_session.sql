@@ -4,10 +4,11 @@
         materialized = 'incremental',
         incremental_strategy = 'insert_overwrite',
         partition_by = {
-            "field": "ga4_user__made__ga4_session__date",
-            "data_type": "date",
+            "field": "ga4_user__made__ga4_session__timestamp",
+            "data_type": "timestamp",
             "granularity": "day"
-        }
+        },
+        cluster_by = ['ga4_user_id', 'ga4_session_id']
     )
 }}
 
@@ -16,7 +17,7 @@ WITH t1 AS (
     SELECT DISTINCT
         events.user_pseudo_id AS ga4_user_id,
         (SELECT value.int_value FROM UNNEST(events.user_properties) WHERE key = 'ga_session_id') AS ga4_session_id,
-        SAFE_CAST(events.event_date AS DATE FORMAT 'YYYYMMDD') AS ga4_user__made__ga4_session__date
+        TIMESTAMP_MICROS(events.event_timestamp) AS ga4_user__made__ga4_session__timestamp
     FROM
         {{ source('ga4', 'events') }} AS events
     WHERE
@@ -33,27 +34,47 @@ t2 AS (
     SELECT
         t1.ga4_user_id,
         t1.ga4_session_id,
-        t1.ga4_user__made__ga4_session__date
+        t1.ga4_user__made__ga4_session__timestamp,
+        ROW_NUMBER() OVER(PARTITION BY t1.ga4_user_id, t1.ga4_session_id ORDER BY t1.ga4_user__made__ga4_session__timestamp ASC) AS rn
     FROM
         t1
     WHERE
         t1.ga4_user_id IS NOT NULL
         AND t1.ga4_session_id IS NOT NULL
-        AND t1.ga4_user__made__ga4_session__date IS NOT NULL
+        AND t1.ga4_user__made__ga4_session__timestamp IS NOT NULL
+),
+
+t3 AS (
+    SELECT
+        t2.ga4_user_id,
+        t2.ga4_session_id,
+        t2.ga4_user__made__ga4_session__timestamp
+    FROM
+        t2
+    WHERE
+        t2.rn = 1
 ),
 
 final AS (
     SELECT
-        t2.ga4_user_id,
-        t2.ga4_session_id,
-        t2.ga4_user__made__ga4_session__date
+        t3.ga4_user_id,
+        t3.ga4_session_id,
+        t3.ga4_user__made__ga4_session__timestamp
     FROM
-        t2
+        t3
 )
 
 SELECT * FROM final
 
     {% if is_incremental() %}
     WHERE
-        final.ga4_user__made__ga4_session__date > DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR_INTERVAL_INCREMENTAL') }} DAY)
+        final.ga4_user__made__ga4_session__timestamp <= COALESCE((
+            SELECT
+                this.ga4_user__made__ga4_session__timestamp
+            FROM
+                {{ this }} AS this
+            WHERE
+                this.ga4_user_id = final.ga4_user_id
+                AND this.ga4_session_id = final.ga4_session_id
+        ), TIMESTAMP(CURRENT_DATE()))
     {% endif %}
