@@ -1,1 +1,1 @@
-# package_ga4
+# dbt-package-ga4
