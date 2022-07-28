@@ -15,7 +15,16 @@
 
 WITH t1 AS (
     SELECT
-        (SELECT value.int_value FROM UNNEST(events.user_properties) WHERE key = 'ga_session_id') AS ga4_session_id,
+        -- (SELECT value.int_value FROM UNNEST(events.user_properties) WHERE key = 'ga_session_id') AS ga4_session_id,
+        TO_HEX(
+            MD5(
+                CONCAT(
+                    SAFE_CAST(events.user_pseudo_id AS STRING),
+                    SAFE_CAST((SELECT value.int_value FROM UNNEST(events.user_properties) WHERE key = 'ga_session_id') AS STRING)
+                    )
+                )
+            ) AS ga4_session_id,
+        (SELECT value.int_value FROM UNNEST(events.user_properties) WHERE key = 'ga_session_id') AS ga4_session_ga4_id,
         TIMESTAMP_MICROS(events.event_timestamp) AS ga4_session_timestamp
     FROM
         {{ source('ga4', 'events') }} AS events
@@ -32,18 +41,21 @@ WITH t1 AS (
 t2 AS (
     SELECT
         t1.ga4_session_id,
+        t1.ga4_session_ga4_id,
         t1.ga4_session_timestamp,
         ROW_NUMBER() OVER(PARTITION BY t1.ga4_session_id ORDER BY t1.ga4_session_timestamp ASC) AS rn
     FROM
         t1
     WHERE
         t1.ga4_session_id IS NOT NULL
+        AND t1.ga4_session_ga4_id IS NOT NULL
         AND t1.ga4_session_timestamp IS NOT NULL
 ),
 
 t3 AS (
     SELECT
         t2.ga4_session_id,
+        t2.ga4_session_ga4_id,
         t2.ga4_session_timestamp
     FROM
         t2
@@ -55,6 +67,7 @@ t3 AS (
 final AS (
     SELECT
         t3.ga4_session_id,
+        t3.ga4_session_ga4_id,
         t3.ga4_session_timestamp
     FROM
         t3
