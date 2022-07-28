@@ -2,7 +2,7 @@
 # Name your project! Project names should contain only lowercase characters
 # and underscores. A good package name should reflect your organization's
 # name or the intended use of these models
-name: 'ga4'
+name: 'dbt_package_ga4'
 version: '1.0.0'
 config-version: 2
 
@@ -25,10 +25,10 @@ clean-targets:         # directories to be removed by `dbt clean`
   - "dbt_packages"
 
 vars:
-  VAR_PROJECT: "holybricks"
-  VAR_DATASET: "analytics_202294062"
-  VAR_INTERVAL: 7
-  VAR_INTERVAL_INCREMENTAL: 2
+  VAR__DBT_PACKAGE_GA4__PROJECT: "holybricks"
+  VAR__DBT_PACKAGE_GA4__DATASET: "analytics_202294062"
+  VAR__DBT_PACKAGE_GA4__INTERVAL: 7
+  VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL: 2
 
 # {{ env_var('DBT_PROJECT') }}
 # {{ env_var('DBT_DATASET') }}
@@ -43,11 +43,7 @@ vars:
 # as tables. These settings can be overridden in the individual model files
 # using the `{{ config(...) }}` macro.
 models:
-  ga4:
-    materialized: view
+  dbt_package_ga4:
 
     anchor:
       +dataset: anchor
-
-    calc:
-      +dataset: calc

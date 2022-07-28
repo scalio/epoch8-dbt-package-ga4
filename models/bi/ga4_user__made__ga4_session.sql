@@ -2,7 +2,8 @@
     config(
         enabled=true,
         materialized = 'incremental',
-        incremental_strategy = 'insert_overwrite',
+        incremental_strategy = 'merge',
+        unique_key = ['ga4_user_id', 'ga4_session_id'],
         partition_by = {
             "field": "ga4_user__made__ga4_session__timestamp",
             "data_type": "timestamp",
@@ -24,7 +25,7 @@ WITH t1 AS (
     {% if is_incremental() %}
         {% set max_patition_date = macro__get_max_patition_date(this.schema, this.table) %}
         WHERE
-            DATE(ga4_user__made__ga4_session.ga4_user__made__ga4_session__timestamp) > DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR_INTERVAL_INCREMENTAL') }} DAY)
+            DATE(ga4_user__made__ga4_session.ga4_user__made__ga4_session__timestamp) > DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
     {% endif %}
 ),
 
@@ -41,5 +42,13 @@ SELECT * FROM final
 
     {% if is_incremental() %}
     WHERE
-        DATE(final.ga4_user__made__ga4_session__timestamp) > DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR_INTERVAL_INCREMENTAL') }} DAY)
+        final.ga4_user__made__ga4_session__timestamp <= COALESCE((
+            SELECT
+                this.ga4_user__made__ga4_session__timestamp
+            FROM
+                {{ this }} AS this
+            WHERE
+                this.ga4_user_id = final.ga4_user_id
+                AND this.ga4_session_id = final.ga4_session_id
+        ), TIMESTAMP(CURRENT_DATE()))
     {% endif %}
