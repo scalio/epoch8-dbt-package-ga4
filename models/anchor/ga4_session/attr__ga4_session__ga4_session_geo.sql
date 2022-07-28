@@ -4,17 +4,26 @@
         materialized = 'incremental',
         incremental_strategy = 'insert_overwrite',
         partition_by = {
-            "field": "ga4_session_date",
-            "data_type": "date",
+            "field": "ga4_session_timestamp",
+            "data_type": "timestamp",
             "granularity": "day"
-        }
+        },
+        cluster_by = 'ga4_session_id'
     )
 }}
 
 
 WITH t1 AS (
     SELECT
-        (SELECT value.int_value FROM UNNEST(events.user_properties) WHERE key = 'ga_session_id') AS ga4_session_id,
+        -- (SELECT value.int_value FROM UNNEST(events.user_properties) WHERE key = 'ga_session_id') AS ga4_session_id,
+        TO_HEX(
+            MD5(
+                CONCAT(
+                    SAFE_CAST(events.user_pseudo_id AS STRING),
+                    SAFE_CAST((SELECT value.int_value FROM UNNEST(events.user_properties) WHERE key = 'ga_session_id') AS STRING)
+                    )
+                )
+            ) AS ga4_session_id,
         SAFE_CAST(events.event_date AS DATE FORMAT 'YYYYMMDD') AS ga4_session_date,
         events.geo.continent AS ga4_session_geo_continent,
         events.geo.sub_continent AS ga4_session_geo_sub_continent,
@@ -87,5 +96,12 @@ SELECT * FROM final
 
     {% if is_incremental() %}
     WHERE
-        final.ga4_session_date > DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR_INTERVAL_INCREMENTAL') }} DAY)
+        final.ga4_session_timestamp <= COALESCE((
+            SELECT
+                this.ga4_session_timestamp
+            FROM
+                {{ this }} AS this
+            WHERE
+                this.ga4_session_id = final.ga4_session_id
+        ), TIMESTAMP(CURRENT_DATE()))
     {% endif %}

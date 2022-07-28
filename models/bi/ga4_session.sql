@@ -16,6 +16,7 @@
 WITH t1 AS (
     SELECT
         ga4_session.ga4_session_id,
+        ga4_session.ga4_session_ga4_id,
         ga4_session.ga4_session_timestamp,
         ga4_session_geo_continent.ga4_session_geo_continent,
         ga4_session_geo_sub_continent.ga4_session_geo_sub_continent,
@@ -146,6 +147,7 @@ WITH t1 AS (
 final AS (
     SELECT
         t1.ga4_session_id,
+        t1.ga4_session_ga4_id,
         t1.ga4_session_timestamp,
         t1.ga4_session_geo_continent,
         t1.ga4_session_geo_sub_continent,
