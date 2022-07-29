@@ -5,8 +5,8 @@
         incremental_strategy = 'merge',
         unique_key = ['ga4_user_id', 'ga4_session_id'],
         partition_by = {
-            "field": "ga4_user__made__ga4_session__timestamp",
-            "data_type": "timestamp",
+            "field": "ga4_date_partition",
+            "data_type": "date",
             "granularity": "day"
         },
         cluster_by = ['ga4_user_id', 'ga4_session_id']
@@ -16,6 +16,7 @@
 
 WITH t1 AS (
     SELECT DISTINCT
+        PARSE_DATE('%Y%m%d', _TABLE_SUFFIX) AS ga4_date_partition,
         events.user_pseudo_id AS ga4_user_id,
         TO_HEX(
             MD5(
@@ -40,6 +41,7 @@ WITH t1 AS (
 
 t2 AS (
     SELECT
+        t1.ga4_date_partition,
         t1.ga4_user_id,
         t1.ga4_session_id,
         t1.ga4_user__made__ga4_session__timestamp,
@@ -47,13 +49,15 @@ t2 AS (
     FROM
         t1
     WHERE
-        t1.ga4_user_id IS NOT NULL
+        t1.ga4_date_partition IS NOT NULL
+        AND t1.ga4_user_id IS NOT NULL
         AND t1.ga4_session_id IS NOT NULL
         AND t1.ga4_user__made__ga4_session__timestamp IS NOT NULL
 ),
 
 t3 AS (
     SELECT
+        t2.ga4_date_partition,
         t2.ga4_user_id,
         t2.ga4_session_id,
         t2.ga4_user__made__ga4_session__timestamp
@@ -65,6 +69,7 @@ t3 AS (
 
 final AS (
     SELECT
+        t3.ga4_date_partition,
         t3.ga4_user_id,
         t3.ga4_session_id,
         t3.ga4_user__made__ga4_session__timestamp

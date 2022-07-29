@@ -4,7 +4,7 @@
         materialized = 'incremental',
         incremental_strategy = 'insert_overwrite',
         partition_by = {
-            "field": "ga4_event_date",
+            "field": "ga4_date_partition",
             "data_type": "date",
             "granularity": "day"
         },
@@ -15,6 +15,7 @@
 
 WITH t1 AS (
     SELECT DISTINCT
+        PARSE_DATE('%Y%m%d', _TABLE_SUFFIX) AS ga4_date_partition,
         TO_HEX(
             MD5(
                 CONCAT(
@@ -24,8 +25,7 @@ WITH t1 AS (
                     SAFE_CAST(events.event_server_timestamp_offset AS STRING)
                     )
                 )
-            ) AS ga4_event_id,
-        SAFE_CAST(events.event_date AS DATE FORMAT 'YYYYMMDD') AS ga4_event_date
+            ) AS ga4_event_id
     FROM
         {{ source('dbt_package_ga4', 'events') }} AS events
     WHERE
@@ -40,19 +40,19 @@ WITH t1 AS (
 
 t2 AS (
     SELECT
-        t1.ga4_event_id,
-        t1.ga4_event_date
+        t1.ga4_date_partition,
+        t1.ga4_event_id
     FROM
         t1
     WHERE
-        t1.ga4_event_id IS NOT NULL
-        AND t1.ga4_event_date IS NOT NULL
+        t1.ga4_date_partition IS NOT NULL
+        AND t1.ga4_event_id IS NOT NULL
 ),
 
 final AS (
     SELECT
-        t2.ga4_event_id,
-        t2.ga4_event_date
+        t2.ga4_date_partition,
+        t2.ga4_event_id
     FROM
         t2
 )
@@ -61,5 +61,5 @@ SELECT * FROM final
 
     {% if is_incremental() %}
     WHERE
-        final.ga4_event_date > DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
+        final.ga4_date_partition > DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
     {% endif %}

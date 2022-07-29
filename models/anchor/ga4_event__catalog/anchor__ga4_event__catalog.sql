@@ -5,8 +5,8 @@
         incremental_strategy = 'merge',
         unique_key = 'ga4_event_name',
         partition_by = {
-            "field": "ga4_event_appearance_timestamp",
-            "data_type": "timestamp",
+            "field": "ga4_date_partition",
+            "data_type": "date",
             "granularity": "day"
         },
         cluster_by = 'ga4_event_name'
@@ -16,6 +16,7 @@
 
 WITH t1 AS (
     SELECT
+        MIN(PARSE_DATE('%Y%m%d', _TABLE_SUFFIX)) AS ga4_date_partition,
         SAFE_CAST(events.event_name AS STRING) AS ga4_event_name,
         TIMESTAMP_MICROS(MIN(events.event_timestamp)) AS ga4_event_appearance_timestamp
     FROM
@@ -34,17 +35,20 @@ WITH t1 AS (
 
 t2 AS (
     SELECT
+        t1.ga4_date_partition,
         t1.ga4_event_name,
         t1.ga4_event_appearance_timestamp
     FROM
         t1
     WHERE
-        t1.ga4_event_name IS NOT NULL
+        t1.ga4_date_partition IS NOT NULL
+        AND t1.ga4_event_name IS NOT NULL
         AND t1.ga4_event_appearance_timestamp IS NOT NULL
 ),
 
 final AS (
     SELECT
+        t2.ga4_date_partition,
         t2.ga4_event_name,
         t2.ga4_event_appearance_timestamp
     FROM

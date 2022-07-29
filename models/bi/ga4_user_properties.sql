@@ -30,7 +30,7 @@ WITH t1 AS (
     {% if is_incremental() %}
         {% set max_patition_date = macro__get_max_patition_date(this.schema, this.table) %}
     WHERE
-        DATE(ga4_user_properties.ga4_user_properties_timestamp_updated) > DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
+        ga4_user_properties.ga4_date_partition > DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
     {% endif %}
 ),
 
