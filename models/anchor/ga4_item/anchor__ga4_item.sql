@@ -44,15 +44,15 @@ WITH t1 AS (
         item.creative_name AS ga4_item_creative_name,
         item.creative_slot AS ga4_item_creative_slot
     FROM
-        {{ source('ga4', 'events') }} AS events,
+        {{ source('dbt_package_ga4', 'events') }} AS events,
         UNNEST(events.items) AS item
     WHERE
         _TABLE_SUFFIX NOT LIKE '%intraday%'
-        AND PARSE_DATE('%Y%m%d', _TABLE_SUFFIX) > DATE_SUB(DATE(CURRENT_DATE()), INTERVAL {{ var('VAR_INTERVAL') }} DAY)
+        AND PARSE_DATE('%Y%m%d', _TABLE_SUFFIX) > DATE_SUB(DATE(CURRENT_DATE()), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL') }} DAY)
     
     {% if is_incremental() %}
         {% set max_patition_date = macro__get_max_patition_date(this.schema, this.table) %}
-        AND PARSE_DATE('%Y%m%d', _TABLE_SUFFIX) > DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR_INTERVAL_INCREMENTAL') }} DAY)
+        AND PARSE_DATE('%Y%m%d', _TABLE_SUFFIX) > DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
     {% endif %}
 ),
 
@@ -173,5 +173,5 @@ SELECT * FROM final
                 {{ this }} AS this
             WHERE
                 this.ga4_item_id = final.ga4_item_id
-        ), TIMESTAMP(CURRENT_DATE()))
+        ), TIMESTAMP('1900-01-01'))
     {% endif %}

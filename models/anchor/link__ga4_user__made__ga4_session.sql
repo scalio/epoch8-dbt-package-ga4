@@ -2,7 +2,8 @@
     config(
         enabled=true,
         materialized = 'incremental',
-        incremental_strategy = 'insert_overwrite',
+        incremental_strategy = 'merge',
+        unique_key = ['ga4_user_id', 'ga4_session_id'],
         partition_by = {
             "field": "ga4_user__made__ga4_session__timestamp",
             "data_type": "timestamp",
@@ -16,7 +17,6 @@
 WITH t1 AS (
     SELECT DISTINCT
         events.user_pseudo_id AS ga4_user_id,
-        -- (SELECT value.int_value FROM UNNEST(events.user_properties) WHERE key = 'ga_session_id') AS ga4_session_id,
         TO_HEX(
             MD5(
                 CONCAT(
@@ -27,14 +27,14 @@ WITH t1 AS (
             ) AS ga4_session_id,
         TIMESTAMP_MICROS(events.event_timestamp) AS ga4_user__made__ga4_session__timestamp
     FROM
-        {{ source('ga4', 'events') }} AS events
+        {{ source('dbt_package_ga4', 'events') }} AS events
     WHERE
         _TABLE_SUFFIX NOT LIKE '%intraday%'
-        AND PARSE_DATE('%Y%m%d', _TABLE_SUFFIX) > DATE_SUB(DATE(CURRENT_DATE()), INTERVAL {{ var('VAR_INTERVAL') }} DAY)
+        AND PARSE_DATE('%Y%m%d', _TABLE_SUFFIX) > DATE_SUB(DATE(CURRENT_DATE()), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL') }} DAY)
     
     {% if is_incremental() %}
         {% set max_patition_date = macro__get_max_patition_date(this.schema, this.table) %}
-        AND PARSE_DATE('%Y%m%d', _TABLE_SUFFIX) > DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR_INTERVAL_INCREMENTAL') }} DAY)
+        AND PARSE_DATE('%Y%m%d', _TABLE_SUFFIX) > DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
     {% endif %}
 ),
 
@@ -76,7 +76,7 @@ SELECT * FROM final
 
     {% if is_incremental() %}
     WHERE
-        final.ga4_user__made__ga4_session__timestamp <= COALESCE((
+        final.ga4_user__made__ga4_session__timestamp < COALESCE((
             SELECT
                 this.ga4_user__made__ga4_session__timestamp
             FROM
