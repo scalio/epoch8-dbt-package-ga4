@@ -17,11 +17,15 @@
 WITH t1 AS (
     SELECT
         ga4_event_name.ga4_event_name,
-        ga4_event_appearance_timestamp.ga4_event_appearance_timestamp
+        ga4_event_name.ga4_event_appearance_timestamp
     FROM
         {{ ref('anchor__ga4_event__catalog') }} AS ga4_event_name
-        LEFT JOIN {{ ref('attr__ga4_event__ga4_event_appearance_timestamp') }} AS ga4_event_appearance_timestamp
-            ON ga4_event_appearance_timestamp.ga4_event_name = ga4_event_name.ga4_event_name
+    
+    {% if is_incremental() %}
+        {% set max_patition_date = macro__get_max_patition_date(this.schema, this.table) %}
+    WHERE
+        DATE(ga4_event_name.ga4_event_appearance_timestamp) > DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
+    {% endif %}
 ),
 
 final AS (
@@ -33,3 +37,15 @@ final AS (
 )
 
 SELECT * FROM final
+
+    {% if is_incremental() %}
+    WHERE
+        final.ga4_event_appearance_timestamp < COALESCE((
+            SELECT
+                this.ga4_event_appearance_timestamp
+            FROM
+                {{ this }} AS this
+            WHERE
+                this.ga4_event_name = final.ga4_event_name
+        ), TIMESTAMP(CURRENT_DATE()))
+    {% endif %}

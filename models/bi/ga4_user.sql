@@ -17,51 +17,7 @@
 WITH t1 AS (
     SELECT
         ga4_user.ga4_user_id,
-        CASE
-            WHEN
-                ga4_user_first_touch_timestamp.ga4_user_timestamp_updated > ga4_user_ltv_revenue.ga4_user_timestamp_updated
-                OR ga4_user_first_touch_timestamp.ga4_user_timestamp_updated > ga4_user_ltv_currency.ga4_user_timestamp_updated
-                OR ga4_user_first_touch_timestamp.ga4_user_timestamp_updated > ga4_user_privacy_info_ads_storage.ga4_user_timestamp_updated
-                OR ga4_user_first_touch_timestamp.ga4_user_timestamp_updated > ga4_user_privacy_info_analytics_storage.ga4_user_timestamp_updated
-                OR ga4_user_first_touch_timestamp.ga4_user_timestamp_updated > ga4_user_privacy_info_uses_transient_token.ga4_user_timestamp_updated
-            THEN ga4_user_first_touch_timestamp.ga4_user_timestamp_updated
-            WHEN
-                ga4_user_ltv_revenue.ga4_user_timestamp_updated > ga4_user_first_touch_timestamp.ga4_user_timestamp_updated
-                OR ga4_user_ltv_revenue.ga4_user_timestamp_updated > ga4_user_ltv_currency.ga4_user_timestamp_updated
-                OR ga4_user_ltv_revenue.ga4_user_timestamp_updated > ga4_user_privacy_info_ads_storage.ga4_user_timestamp_updated
-                OR ga4_user_ltv_revenue.ga4_user_timestamp_updated > ga4_user_privacy_info_analytics_storage.ga4_user_timestamp_updated
-                OR ga4_user_ltv_revenue.ga4_user_timestamp_updated > ga4_user_privacy_info_uses_transient_token.ga4_user_timestamp_updated
-            THEN ga4_user_ltv_revenue.ga4_user_timestamp_updated
-            WHEN
-                ga4_user_ltv_currency.ga4_user_timestamp_updated > ga4_user_ltv_revenue.ga4_user_timestamp_updated
-                OR ga4_user_ltv_currency.ga4_user_timestamp_updated > ga4_user_first_touch_timestamp.ga4_user_timestamp_updated
-                OR ga4_user_ltv_currency.ga4_user_timestamp_updated > ga4_user_privacy_info_ads_storage.ga4_user_timestamp_updated
-                OR ga4_user_ltv_currency.ga4_user_timestamp_updated > ga4_user_privacy_info_analytics_storage.ga4_user_timestamp_updated
-                OR ga4_user_ltv_currency.ga4_user_timestamp_updated > ga4_user_privacy_info_uses_transient_token.ga4_user_timestamp_updated
-            THEN ga4_user_ltv_currency.ga4_user_timestamp_updated
-            WHEN
-                ga4_user_privacy_info_ads_storage.ga4_user_timestamp_updated > ga4_user_ltv_revenue.ga4_user_timestamp_updated
-                OR ga4_user_privacy_info_ads_storage.ga4_user_timestamp_updated > ga4_user_ltv_currency.ga4_user_timestamp_updated
-                OR ga4_user_privacy_info_ads_storage.ga4_user_timestamp_updated > ga4_user_first_touch_timestamp.ga4_user_timestamp_updated
-                OR ga4_user_privacy_info_ads_storage.ga4_user_timestamp_updated > ga4_user_privacy_info_analytics_storage.ga4_user_timestamp_updated
-                OR ga4_user_privacy_info_ads_storage.ga4_user_timestamp_updated > ga4_user_privacy_info_uses_transient_token.ga4_user_timestamp_updated
-            THEN ga4_user_privacy_info_ads_storage.ga4_user_timestamp_updated
-            WHEN
-                ga4_user_privacy_info_analytics_storage.ga4_user_timestamp_updated > ga4_user_ltv_revenue.ga4_user_timestamp_updated
-                OR ga4_user_privacy_info_analytics_storage.ga4_user_timestamp_updated > ga4_user_ltv_currency.ga4_user_timestamp_updated
-                OR ga4_user_privacy_info_analytics_storage.ga4_user_timestamp_updated > ga4_user_privacy_info_ads_storage.ga4_user_timestamp_updated
-                OR ga4_user_privacy_info_analytics_storage.ga4_user_timestamp_updated > ga4_user_first_touch_timestamp.ga4_user_timestamp_updated
-                OR ga4_user_privacy_info_analytics_storage.ga4_user_timestamp_updated > ga4_user_privacy_info_uses_transient_token.ga4_user_timestamp_updated
-            THEN ga4_user_privacy_info_analytics_storage.ga4_user_timestamp_updated
-            WHEN
-                ga4_user_privacy_info_uses_transient_token.ga4_user_timestamp_updated > ga4_user_ltv_revenue.ga4_user_timestamp_updated
-                OR ga4_user_privacy_info_uses_transient_token.ga4_user_timestamp_updated > ga4_user_ltv_currency.ga4_user_timestamp_updated
-                OR ga4_user_privacy_info_uses_transient_token.ga4_user_timestamp_updated > ga4_user_privacy_info_ads_storage.ga4_user_timestamp_updated
-                OR ga4_user_privacy_info_uses_transient_token.ga4_user_timestamp_updated > ga4_user_privacy_info_analytics_storage.ga4_user_timestamp_updated
-                OR ga4_user_privacy_info_uses_transient_token.ga4_user_timestamp_updated > ga4_user_first_touch_timestamp.ga4_user_timestamp_updated
-            THEN ga4_user_privacy_info_uses_transient_token.ga4_user_timestamp_updated
-            ELSE ga4_user.ga4_user_timestamp_updated
-        END ga4_user_timestamp_updated,
+        ga4_user.ga4_user_timestamp_updated,
         ga4_user_first_touch_timestamp.ga4_user_first_touch_timestamp,
         ga4_user_ltv_revenue.ga4_user_ltv_revenue,
         ga4_user_ltv_currency.ga4_user_ltv_currency,

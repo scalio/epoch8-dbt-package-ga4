@@ -15,7 +15,6 @@
 
 WITH t1 AS (
     SELECT DISTINCT
-        -- (SELECT value.int_value FROM UNNEST(events.user_properties) WHERE key = 'ga_session_id') AS ga4_session_id,
         TO_HEX(
             MD5(
                 CONCAT(

@@ -42,7 +42,7 @@ SELECT * FROM final
 
     {% if is_incremental() %}
     WHERE
-        final.ga4_user__made__ga4_session__timestamp <= COALESCE((
+        final.ga4_user__made__ga4_session__timestamp < COALESCE((
             SELECT
                 this.ga4_user__made__ga4_session__timestamp
             FROM

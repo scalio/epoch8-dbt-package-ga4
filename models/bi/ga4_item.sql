@@ -97,5 +97,5 @@ SELECT * FROM final
                 {{ this }} AS this
             WHERE
                 this.ga4_item_id = final.ga4_item_id
-        ), TIMESTAMP(CURRENT_DATE()))
+        ), TIMESTAMP('1900-01-01'))
     {% endif %}
