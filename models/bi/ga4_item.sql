@@ -6,7 +6,7 @@
         unique_key = 'ga4_item_id',
         partition_by = {
             "field": "ga4_item_timestamp_updated",
-            "data_type": "timestamp",
+            "data_type": "timesatmp",
             "granularity": "day"
         },
         cluster_by = 'ga4_item_id'
@@ -49,7 +49,7 @@ WITH t1 AS (
     {% if is_incremental() %}
         {% set max_patition_date = macro__get_max_patition_date(this.schema, this.table) %}
     WHERE
-        DATE(ga4_item.ga4_item_timestamp_updated) > DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
+        ga4_item.ga4_date_partition >= DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
     {% endif %}
 ),
 

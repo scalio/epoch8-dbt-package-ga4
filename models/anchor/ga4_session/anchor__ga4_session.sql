@@ -5,8 +5,8 @@
         incremental_strategy = 'merge',
         unique_key = 'ga4_session_id',
         partition_by = {
-            "field": "ga4_session_timestamp",
-            "data_type": "timestamp",
+            "field": "ga4_date_partition",
+            "data_type": "date",
             "granularity": "day"
         },
         cluster_by = 'ga4_session_id'
@@ -16,6 +16,7 @@
 
 WITH t1 AS (
     SELECT
+        PARSE_DATE('%Y%m%d', _TABLE_SUFFIX) AS ga4_date_partition,
         TO_HEX(
             MD5(
                 CONCAT(
@@ -25,7 +26,7 @@ WITH t1 AS (
                 )
             ) AS ga4_session_id,
         (SELECT value.int_value FROM UNNEST(events.user_properties) WHERE key = 'ga_session_id') AS ga4_session_ga4_id,
-        TIMESTAMP_MICROS(events.event_timestamp) AS ga4_session_timestamp
+        TIMESTAMP_MICROS(events.event_timestamp) AS ga4_session_appearance_timestamp
     FROM
         {{ source('dbt_package_ga4', 'events') }} AS events
     WHERE
@@ -40,23 +41,26 @@ WITH t1 AS (
 
 t2 AS (
     SELECT
+        t1.ga4_date_partition,
         t1.ga4_session_id,
         t1.ga4_session_ga4_id,
-        t1.ga4_session_timestamp,
-        ROW_NUMBER() OVER(PARTITION BY t1.ga4_session_id ORDER BY t1.ga4_session_timestamp ASC) AS rn
+        t1.ga4_session_appearance_timestamp,
+        ROW_NUMBER() OVER(PARTITION BY t1.ga4_session_id ORDER BY t1.ga4_session_appearance_timestamp ASC) AS rn
     FROM
         t1
     WHERE
-        t1.ga4_session_id IS NOT NULL
+        t1.ga4_date_partition IS NOT NULL
+        AND t1.ga4_session_id IS NOT NULL
         AND t1.ga4_session_ga4_id IS NOT NULL
-        AND t1.ga4_session_timestamp IS NOT NULL
+        AND t1.ga4_session_appearance_timestamp IS NOT NULL
 ),
 
 t3 AS (
     SELECT
+        t2.ga4_date_partition,
         t2.ga4_session_id,
         t2.ga4_session_ga4_id,
-        t2.ga4_session_timestamp
+        t2.ga4_session_appearance_timestamp
     FROM
         t2
     WHERE
@@ -66,9 +70,10 @@ t3 AS (
 
 final AS (
     SELECT
+        t3.ga4_date_partition,
         t3.ga4_session_id,
         t3.ga4_session_ga4_id,
-        t3.ga4_session_timestamp
+        t3.ga4_session_appearance_timestamp
     FROM
         t3
 )
@@ -77,9 +82,9 @@ SELECT * FROM final
 
     {% if is_incremental() %}
     WHERE
-        final.ga4_session_timestamp < COALESCE((
+        final.ga4_session_appearance_timestamp < COALESCE((
             SELECT
-                this.ga4_session_timestamp
+                this.ga4_session_appearance_timestamp
             FROM
                 {{ this }} AS this
             WHERE

@@ -26,7 +26,7 @@ WITH t1 AS (
                     )
                 )
             ) AS ga4_event_id,
-        events.ecommerce.shipping_value_in_usd AS ga4_event_ecommerce_shipping_value_in_usd
+        SAFE_CAST(events.event_date AS DATE FORMAT 'YYYYMMDD') AS ga4_event_date
     FROM
         {{ source('dbt_package_ga4', 'events') }} AS events
     WHERE
@@ -43,20 +43,20 @@ t2 AS (
     SELECT
         t1.ga4_date_partition,
         t1.ga4_event_id,
-        t1.ga4_event_ecommerce_shipping_value_in_usd
+        t1.ga4_event_date
     FROM
         t1
     WHERE
         t1.ga4_date_partition IS NOT NULL
         AND t1.ga4_event_id IS NOT NULL
-        AND t1.ga4_event_ecommerce_shipping_value_in_usd IS NOT NULL
+        AND t1.ga4_event_date IS NOT NULL
 ),
 
 final AS (
     SELECT
         t2.ga4_date_partition,
         t2.ga4_event_id,
-        t2.ga4_event_ecommerce_shipping_value_in_usd
+        t2.ga4_event_date
     FROM
         t2
 )

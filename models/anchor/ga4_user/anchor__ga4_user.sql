@@ -5,8 +5,8 @@
         incremental_strategy = 'merge',
         unique_key = 'ga4_user_id',
         partition_by = {
-            "field": "ga4_user_timestamp_updated",
-            "data_type": "timestamp",
+            "field": "ga4_date_partition",
+            "data_type": "date",
             "granularity": "day"
         },
         cluster_by = 'ga4_user_id'
@@ -16,6 +16,7 @@
 
 WITH t1 AS (
     SELECT
+        PARSE_DATE('%Y%m%d', _TABLE_SUFFIX) AS ga4_date_partition,
         events.user_pseudo_id AS ga4_user_id,
         TIMESTAMP_MICROS(events.event_timestamp) AS ga4_user_timestamp_updated,
         ROW_NUMBER() OVER(PARTITION BY events.user_pseudo_id ORDER BY events.event_timestamp DESC) AS rn
@@ -34,18 +35,21 @@ WITH t1 AS (
 
 t2 AS (
     SELECT
+        t1.ga4_date_partition,
         t1.ga4_user_id,
         t1.ga4_user_timestamp_updated
     FROM
         t1
     WHERE
-        t1.ga4_user_id IS NOT NULL
+        t1.ga4_date_partition IS NOT NULL
+        AND t1.ga4_user_id IS NOT NULL
         AND t1.ga4_user_timestamp_updated IS NOT NULL
         AND t1.rn = 1
 ),
 
 final AS (
     SELECT
+        t2.ga4_date_partition,
         t2.ga4_user_id,
         t2.ga4_user_timestamp_updated
     FROM

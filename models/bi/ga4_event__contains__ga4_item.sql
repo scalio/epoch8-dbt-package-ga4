@@ -24,7 +24,8 @@ WITH t1 AS (
     {% if is_incremental() %}
         {% set max_patition_date = macro__get_max_patition_date(this.schema, this.table) %}
         WHERE
-            DATE(ga4_event__contains__ga4_item.ga4_event__contains__ga4_item__timestamp) > DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
+            ga4_event__contains__ga4_item.ga4_date_partition > DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} + 1 DAY)
+            AND DATE(ga4_event__contains__ga4_item.ga4_event__contains__ga4_item__timestamp) > DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
     {% endif %}
 ),
 

@@ -5,7 +5,7 @@
         incremental_strategy = 'merge',
         unique_key = 'ga4_session_id',
         partition_by = {
-            "field": "ga4_session_timestamp",
+            "field": "ga4_session_appearance_timestamp",
             "data_type": "timestamp",
             "granularity": "day"
         },
@@ -18,7 +18,7 @@ WITH t1 AS (
     SELECT
         ga4_session.ga4_session_id,
         ga4_session.ga4_session_ga4_id,
-        ga4_session.ga4_session_timestamp,
+        ga4_session.ga4_session_appearance_timestamp,
         ga4_session_geo_continent.ga4_session_geo_continent,
         ga4_session_geo_sub_continent.ga4_session_geo_sub_continent,
         ga4_session_geo_country.ga4_session_geo_country,
@@ -112,36 +112,36 @@ WITH t1 AS (
     {% if is_incremental() %}
         {% set max_patition_date = macro__get_max_patition_date(this.schema, this.table) %}
     WHERE
-        DATE(ga4_session.ga4_session_timestamp) > DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
-        AND DATE(ga4_session_geo_continent.ga4_session_timestamp) > DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
-        AND DATE(ga4_session_geo_sub_continent.ga4_session_timestamp) > DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
-        AND DATE(ga4_session_geo_country.ga4_session_timestamp) > DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
-        AND DATE(ga4_session_geo_region.ga4_session_timestamp) > DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
-        AND DATE(ga4_session_geo_city.ga4_session_timestamp) > DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
-        AND DATE(ga4_session_geo_metro.ga4_session_timestamp) > DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
-        AND DATE(ga4_session_traffic_source_name.ga4_session_timestamp) > DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
-        AND DATE(ga4_session_traffic_source_medium.ga4_session_timestamp) > DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
-        AND DATE(ga4_session_traffic_source_source.ga4_session_timestamp) > DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
-        AND DATE(ga4_session_device_category.ga4_session_timestamp) > DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
-        AND DATE(ga4_session_device_mobile_brand_name.ga4_session_timestamp) > DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
-        AND DATE(ga4_session_device_mobile_model_name.ga4_session_timestamp) > DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
-        AND DATE(ga4_session_device_mobile_marketing_name.ga4_session_timestamp) > DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
-        AND DATE(ga4_session_device_mobile_os_hardware_model.ga4_session_timestamp) > DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
-        AND DATE(ga4_session_device_operating_system.ga4_session_timestamp) > DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
-        AND DATE(ga4_session_device_operating_system_version.ga4_session_timestamp) > DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
-        AND DATE(ga4_session_device_vendor_id.ga4_session_timestamp) > DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
-        AND DATE(ga4_session_device_advertising_id.ga4_session_timestamp) > DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
-        AND DATE(ga4_session_device_language.ga4_session_timestamp) > DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
-        AND DATE(ga4_session_device_time_zone_offset_seconds.ga4_session_timestamp) > DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
-        AND DATE(ga4_session_device_is_limited_ad_tracking.ga4_session_timestamp) > DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
-        AND DATE(ga4_session_device_web_info_browser.ga4_session_timestamp) > DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
-        AND DATE(ga4_session_device_web_info_browser_version.ga4_session_timestamp) > DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
-        AND DATE(ga4_session_device_web_info_hostname.ga4_session_timestamp) > DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
-        AND DATE(ga4_session_app_info_id.ga4_session_timestamp) > DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
-        AND DATE(ga4_session_app_info_firebase_app_id.ga4_session_timestamp) > DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
-        AND DATE(ga4_session_app_info_install_source.ga4_session_timestamp) > DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
-        AND DATE(ga4_session_app_info_version.ga4_session_timestamp) > DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
-        AND DATE(ga4_session_app_platform.ga4_session_timestamp) > DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
+        ga4_session.ga4_date_partition >= DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
+        AND ga4_session_geo_continent.ga4_date_partition >= DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
+        AND ga4_session_geo_sub_continent.ga4_date_partition >= DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
+        AND ga4_session_geo_country.ga4_date_partition >= DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
+        AND ga4_session_geo_region.ga4_date_partition >= DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
+        AND ga4_session_geo_city.ga4_date_partition >= DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
+        AND ga4_session_geo_metro.ga4_date_partition >= DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
+        AND ga4_session_traffic_source_name.ga4_date_partition >= DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
+        AND ga4_session_traffic_source_medium.ga4_date_partition >= DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
+        AND ga4_session_traffic_source_source.ga4_date_partition >= DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
+        AND ga4_session_device_category.ga4_date_partition >= DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
+        AND ga4_session_device_mobile_brand_name.ga4_date_partition >= DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
+        AND ga4_session_device_mobile_model_name.ga4_date_partition >= DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
+        AND ga4_session_device_mobile_marketing_name.ga4_date_partition >= DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
+        AND ga4_session_device_mobile_os_hardware_model.ga4_date_partition >= DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
+        AND ga4_session_device_operating_system.ga4_date_partition >= DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
+        AND ga4_session_device_operating_system_version.ga4_date_partition >= DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
+        AND ga4_session_device_vendor_id.ga4_date_partition >= DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
+        AND ga4_session_device_advertising_id.ga4_date_partition >= DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
+        AND ga4_session_device_language.ga4_date_partition >= DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
+        AND ga4_session_device_time_zone_offset_seconds.ga4_date_partition >= DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
+        AND ga4_session_device_is_limited_ad_tracking.ga4_date_partition >= DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
+        AND ga4_session_device_web_info_browser.ga4_date_partition >= DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
+        AND ga4_session_device_web_info_browser_version.ga4_date_partition >= DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
+        AND ga4_session_device_web_info_hostname.ga4_date_partition >= DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
+        AND ga4_session_app_info_id.ga4_date_partition >= DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
+        AND ga4_session_app_info_firebase_app_id.ga4_date_partition >= DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
+        AND ga4_session_app_info_install_source.ga4_date_partition >= DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
+        AND ga4_session_app_info_version.ga4_date_partition >= DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
+        AND ga4_session_app_platform.ga4_date_partition >= DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
     {% endif %}
 ),
 
@@ -149,7 +149,7 @@ final AS (
     SELECT
         t1.ga4_session_id,
         t1.ga4_session_ga4_id,
-        t1.ga4_session_timestamp,
+        t1.ga4_session_appearance_timestamp,
         t1.ga4_session_geo_continent,
         t1.ga4_session_geo_sub_continent,
         t1.ga4_session_geo_country,
@@ -187,9 +187,9 @@ SELECT * FROM final
 
     {% if is_incremental() %}
     WHERE
-        final.ga4_session_timestamp < COALESCE((
+        final.ga4_session_appearance_timestamp < COALESCE((
             SELECT
-                this.ga4_session_timestamp
+                this.ga4_session_appearance_timestamp
             FROM
                 {{ this }} AS this
             WHERE
