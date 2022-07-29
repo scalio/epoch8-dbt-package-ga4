@@ -6,7 +6,7 @@
         unique_key = 'ga4_item_id',
         partition_by = {
             "field": "ga4_item_timestamp_updated",
-            "data_type": "timesatmp",
+            "data_type": "timestamp",
             "granularity": "day"
         },
         cluster_by = 'ga4_item_id'
