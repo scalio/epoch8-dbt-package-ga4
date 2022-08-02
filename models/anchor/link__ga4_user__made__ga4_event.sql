@@ -22,8 +22,7 @@ WITH t1 AS (
                 CONCAT(
                     SAFE_CAST(events.event_timestamp AS STRING),
                     SAFE_CAST(events.event_name AS STRING),
-                    SAFE_CAST(events.user_pseudo_id AS STRING),
-                    SAFE_CAST(events.event_server_timestamp_offset AS STRING)
+                    SAFE_CAST(events.user_pseudo_id AS STRING)
                     )
                 )
             ) AS ga4_event_id,

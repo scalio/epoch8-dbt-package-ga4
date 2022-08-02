@@ -27,8 +27,8 @@ clean-targets:         # directories to be removed by `dbt clean`
 # vars:
 #   VAR__DBT_PACKAGE_GA4__PROJECT: "holybricks"
 #   VAR__DBT_PACKAGE_GA4__DATASET: "analytics_202294062"
-#   VAR__DBT_PACKAGE_GA4__INTERVAL: 7
-#   VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL: 2
+#   VAR__DBT_PACKAGE_GA4__INTERVAL: 14
+#   VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL: 4
 
 # {{ env_var('DBT_PROJECT') }}
 # {{ env_var('DBT_DATASET') }}
