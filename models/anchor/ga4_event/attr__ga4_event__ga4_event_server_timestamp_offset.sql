@@ -21,8 +21,7 @@ WITH t1 AS (
                 CONCAT(
                     SAFE_CAST(events.event_timestamp AS STRING),
                     SAFE_CAST(events.event_name AS STRING),
-                    SAFE_CAST(events.user_pseudo_id AS STRING),
-                    SAFE_CAST(events.event_server_timestamp_offset AS STRING)
+                    SAFE_CAST(events.user_pseudo_id AS STRING)
                     )
                 )
             ) AS ga4_event_id,
@@ -43,7 +42,8 @@ t2 AS (
     SELECT
         t1.ga4_date_partition,
         t1.ga4_event_id,
-        t1.ga4_event_server_timestamp_offset
+        t1.ga4_event_server_timestamp_offset,
+        ROW_NUMBER() OVER(PARTITION BY t1.ga4_event_id ORDER BY t1.ga4_event_server_timestamp_offset DESC) AS rn
     FROM
         t1
     WHERE
@@ -52,13 +52,24 @@ t2 AS (
         AND t1.ga4_event_server_timestamp_offset IS NOT NULL
 ),
 
-final AS (
+t3 AS (
     SELECT
         t2.ga4_date_partition,
         t2.ga4_event_id,
         t2.ga4_event_server_timestamp_offset
     FROM
         t2
+    WHERE
+        t2.rn = 1
+),
+
+final AS (
+    SELECT
+        t3.ga4_date_partition,
+        t3.ga4_event_id,
+        t3.ga4_event_server_timestamp_offset
+    FROM
+        t3
 )
 
 SELECT * FROM final
