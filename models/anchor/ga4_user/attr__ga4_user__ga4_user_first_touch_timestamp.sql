@@ -29,7 +29,7 @@ WITH t1 AS (
         AND PARSE_DATE('%Y%m%d', _TABLE_SUFFIX) > DATE_SUB(DATE(CURRENT_DATE()), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL') }} DAY)
     
     {% if is_incremental() %}
-        {% set max_patition_date = macro__get_max_patition_date(this.schema, this.table) %}
+    {% set max_patition_date = macro__get_max_patition_date(this.schema, this.table) %}
         AND PARSE_DATE('%Y%m%d', _TABLE_SUFFIX) > DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
     {% endif %}
 ),
