@@ -22,7 +22,7 @@ WITH t1 AS (
         {{ ref('anchor__ga4_event__catalog') }} AS ga4_event_name
     
     {% if is_incremental() %}
-        {% set max_patition_date = macro__get_max_patition_date(this.schema, this.table) %}
+    {% set max_patition_date = macro__get_max_patition_date(this.schema, this.table) %}
     WHERE
         ga4_event_name.ga4_date_partition >= DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
     {% endif %}
