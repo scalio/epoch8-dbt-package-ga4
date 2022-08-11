@@ -4,7 +4,7 @@
         materialized = 'incremental',
         incremental_strategy = 'insert_overwrite',
         partition_by = {
-            "field": "ga4_session__contsains__ga4_event__timestamp",
+            "field": "ga4_session__contains__ga4_event__timestamp",
             "data_type": "timestamp",
             "granularity": "day"
         },
@@ -17,7 +17,7 @@ WITH t1 AS (
     SELECT
         ga4_session__contains__ga4_event.ga4_session_id,
         ga4_session__contains__ga4_event.ga4_event_id,
-        ga4_session__contains__ga4_event.ga4_session__contsains__ga4_event__timestamp
+        ga4_session__contains__ga4_event.ga4_session__contains__ga4_event__timestamp
     FROM
         {{ ref('link__ga4_session__contains__ga4_event') }} AS ga4_session__contains__ga4_event
     
@@ -25,7 +25,7 @@ WITH t1 AS (
     {% set max_patition_date = macro__get_max_patition_date(this.schema, this.table) %}
     WHERE
         ga4_session__contains__ga4_event.ga4_date_partition > DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} + 1 DAY)
-        AND DATE(ga4_session__contains__ga4_event.ga4_session__contsains__ga4_event__timestamp) > DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
+        AND DATE(ga4_session__contains__ga4_event.ga4_session__contains__ga4_event__timestamp) > DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
     {% endif %}
 ),
 
@@ -33,7 +33,7 @@ final AS (
     SELECT
         t1.ga4_session_id,
         t1.ga4_event_id,
-        t1.ga4_session__contsains__ga4_event__timestamp
+        t1.ga4_session__contains__ga4_event__timestamp
     FROM
         t1
 )
@@ -42,5 +42,5 @@ SELECT * FROM final
 
     {% if is_incremental() %}
     WHERE
-        DATE(final.ga4_session__contsains__ga4_event__timestamp) > DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
+        DATE(final.ga4_session__contains__ga4_event__timestamp) > DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
     {% endif %}

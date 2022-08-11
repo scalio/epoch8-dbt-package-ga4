@@ -33,7 +33,7 @@ WITH t1 AS (
                     )
                 )
             ) AS ga4_event_id,
-        TIMESTAMP_MICROS(events.event_timestamp) AS ga4_session__contsains__ga4_event__timestamp
+        TIMESTAMP_MICROS(events.event_timestamp) AS ga4_session__contains__ga4_event__timestamp
     FROM
         {{ source('dbt_package_ga4', 'events') }} AS events
     WHERE
@@ -51,14 +51,14 @@ t2 AS (
         t1.ga4_date_partition,
         t1.ga4_session_id,
         t1.ga4_event_id,
-        t1.ga4_session__contsains__ga4_event__timestamp
+        t1.ga4_session__contains__ga4_event__timestamp
     FROM
         t1
     WHERE
         t1.ga4_date_partition IS NOT NULL
         AND t1.ga4_session_id IS NOT NULL
         AND t1.ga4_event_id IS NOT NULL
-        AND t1.ga4_session__contsains__ga4_event__timestamp IS NOT NULL
+        AND t1.ga4_session__contains__ga4_event__timestamp IS NOT NULL
 ),
 
 final AS (
@@ -66,7 +66,7 @@ final AS (
         t2.ga4_date_partition,
         t2.ga4_session_id,
         t2.ga4_event_id,
-        t2.ga4_session__contsains__ga4_event__timestamp
+        t2.ga4_session__contains__ga4_event__timestamp
     FROM
         t2
 )
