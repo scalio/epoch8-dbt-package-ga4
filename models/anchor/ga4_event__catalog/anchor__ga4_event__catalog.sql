@@ -1,6 +1,6 @@
 {{
     config(
-        enabled=true,
+        enabled=false,
         materialized = 'incremental',
         incremental_strategy = 'merge',
         unique_key = 'ga4_event_name',
@@ -18,7 +18,8 @@ WITH t1 AS (
     SELECT
         MIN(PARSE_DATE('%Y%m%d', _TABLE_SUFFIX)) AS ga4_date_partition,
         SAFE_CAST(events.event_name AS STRING) AS ga4_event_name,
-        TIMESTAMP_MICROS(MIN(events.event_timestamp)) AS ga4_event_appearance_timestamp
+        TIMESTAMP_MICROS(MIN(events.event_timestamp)) AS ga4_event_appearance_timestamp,
+        events.device.operating_system AS ga4_event_platform
     FROM
         {{ source('dbt_package_ga4', 'events') }} AS events
     WHERE
@@ -30,27 +31,31 @@ WITH t1 AS (
     {% endif %}
 
     GROUP BY
-        ga4_event_name
+        events.event_name,
+        events.device.operating_system
 ),
 
 t2 AS (
     SELECT
         t1.ga4_date_partition,
         t1.ga4_event_name,
-        t1.ga4_event_appearance_timestamp
+        t1.ga4_event_appearance_timestamp,
+        t1.ga4_event_platform
     FROM
         t1
     WHERE
         t1.ga4_date_partition IS NOT NULL
         AND t1.ga4_event_name IS NOT NULL
         AND t1.ga4_event_appearance_timestamp IS NOT NULL
+        AND t1.ga4_event_platform IS NOT NULL
 ),
 
 final AS (
     SELECT
         t2.ga4_date_partition,
         t2.ga4_event_name,
-        t2.ga4_event_appearance_timestamp
+        t2.ga4_event_appearance_timestamp,
+        t2.ga4_event_platform
     FROM
         t2
 )
