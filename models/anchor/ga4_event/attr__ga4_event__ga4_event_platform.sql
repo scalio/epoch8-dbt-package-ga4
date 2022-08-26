@@ -25,7 +25,8 @@ WITH t1 AS (
                     )
                 )
             ) AS ga4_event_id,
-        events.device.operating_system AS ga4_event_platform
+        -- events.device.operating_system AS ga4_event_platform
+        events.platform AS ga4_event_platform
     FROM
         {{ source('dbt_package_ga4', 'events') }} AS events
     WHERE
