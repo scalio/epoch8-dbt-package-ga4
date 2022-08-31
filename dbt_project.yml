@@ -29,6 +29,7 @@ clean-targets:         # directories to be removed by `dbt clean`
 #   VAR__DBT_PACKAGE_GA4__DATASET: "analytics_202294062"
 #   VAR__DBT_PACKAGE_GA4__INTERVAL: 14
 #   VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL: 4
+#   VAR__DBT_PACKAGE_GA4__STREAM_ID: ['2059071580', '2771133919']
 
 # {{ env_var('DBT_PROJECT') }}
 # {{ env_var('DBT_DATASET') }}
