@@ -31,6 +31,7 @@ WITH t1 AS (
     WHERE
         _TABLE_SUFFIX NOT LIKE '%intraday%'
         AND PARSE_DATE('%Y%m%d', _TABLE_SUFFIX) > DATE_SUB(DATE(CURRENT_DATE()), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL') }} DAY)
+        AND events.stream_id IN UNNEST({{ var('VAR__DBT_PACKAGE_GA4__STREAM_ID') }})
     
     {% if is_incremental() %}
     {% set max_patition_date = macro__get_max_patition_date(this.schema, this.table) %}
