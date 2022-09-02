@@ -36,8 +36,8 @@ WITH t1 AS (
         AND events.stream_id IN UNNEST({{ var('VAR__DBT_PACKAGE_GA4__STREAM_ID') }})
     
     {% if is_incremental() %}
-    {% set max_patition_date = macro__get_max_patition_date(this.schema, this.table) %}
-        AND PARSE_DATE('%Y%m%d', _TABLE_SUFFIX) > DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
+    {% set max_partition_date = macro__get_max_partition_date(this.schema, this.table) %}
+        AND PARSE_DATE('%Y%m%d', _TABLE_SUFFIX) > DATE_SUB(DATE('{{ max_partition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
     {% endif %}
 ),
 

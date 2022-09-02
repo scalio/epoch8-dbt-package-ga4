@@ -17,9 +17,9 @@
 --         {{ ref('attr__ga4_event__ga4_event_timestamp') }} AS ga4_event_timestamp
     
 --     {% if is_incremental() %}
---     {% set max_patition_date = macro__get_max_patition_date(this.schema, this.table) %}
+--     {% set max_partition_date = macro__get_max_partition_date(this.schema, this.table) %}
 --     WHERE
---         ga4_event_timestamp.ga4_date_partition >= DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} + 1 DAY)
+--         ga4_event_timestamp.ga4_date_partition >= DATE_SUB(DATE('{{ max_partition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} + 1 DAY)
 --     {% endif %}
 -- ),
 
@@ -32,7 +32,7 @@ WITH ga4_event_name AS (
     
     {% if is_incremental() %}
     WHERE
-        ga4_event_name.ga4_date_partition >= DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} + 1 DAY)
+        ga4_event_name.ga4_date_partition >= DATE_SUB(DATE('{{ max_partition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} + 1 DAY)
     {% endif %}
 ),
 
@@ -45,7 +45,7 @@ ga4_event_platform AS (
     
     {% if is_incremental() %}
     WHERE
-        ga4_event_platform.ga4_date_partition >= DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} + 1 DAY)
+        ga4_event_platform.ga4_date_partition >= DATE_SUB(DATE('{{ max_partition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} + 1 DAY)
     {% endif %}
 ),
 
@@ -71,7 +71,7 @@ t1 AS (
     
     {% if is_incremental() %}
     WHERE
-        ga4_event.ga4_date_partition >= DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} + 1 DAY)
+        ga4_event.ga4_date_partition >= DATE_SUB(DATE('{{ max_partition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} + 1 DAY)
     {% endif %}
 
     -- GROUP BY

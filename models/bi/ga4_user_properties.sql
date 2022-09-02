@@ -28,9 +28,9 @@ WITH t1 AS (
         {{ ref('attr__ga4_user__ga4_user_properties') }} AS ga4_user_properties
     
     {% if is_incremental() %}
-    {% set max_patition_date = macro__get_max_patition_date(this.schema, this.table) %}
+    {% set max_partition_date = macro__get_max_partition_date(this.schema, this.table) %}
     WHERE
-        ga4_user_properties.ga4_date_partition > DATE_SUB(DATE('{{ max_patition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
+        ga4_user_properties.ga4_date_partition > DATE_SUB(DATE('{{ max_partition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
     {% endif %}
 ),
 
