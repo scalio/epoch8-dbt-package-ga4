@@ -25,8 +25,8 @@ WITH t1 AS (
     {% if is_incremental() %}
     {% set max_partition_date = macro__get_max_partition_date(this.schema, this.table) %}
     WHERE
-        ga4_user__made__ga4_session.ga4_date_partition > DATE_SUB(DATE('{{ max_partition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} + 1 DAY)
-        AND DATE(ga4_user__made__ga4_session.ga4_user__made__ga4_session__timestamp) > DATE_SUB(DATE('{{ max_partition_date }}'), INTERVAL {{ var('VAR__DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
+        ga4_user__made__ga4_session.ga4_date_partition > DATE_SUB(DATE('{{ max_partition_date }}'), INTERVAL {{ env_var('DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} + 1 DAY)
+        AND DATE(ga4_user__made__ga4_session.ga4_user__made__ga4_session__timestamp) > DATE_SUB(DATE('{{ max_partition_date }}'), INTERVAL {{ env_var('DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
     {% endif %}
 ),
 
