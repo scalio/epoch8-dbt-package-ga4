@@ -2,9 +2,7 @@ version: 2
 
 sources:
   - name: dbt_package_ga4
-#    database: "{# env_var('DBT__DBT_PACKAGE_GA4__PROJECT') #}"
     database: "{{ env_var('DBT_PACKAGE_GA4__PROJECT') }}"
-#    schema: "{# env_var('DBT__DBT_PACKAGE_GA4__DATASET') #}"
     schema: "{{ env_var('DBT_PACKAGE_GA4__DATASET') }}"
     tables:
       - name: events
