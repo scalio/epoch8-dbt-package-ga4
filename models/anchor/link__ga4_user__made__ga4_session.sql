@@ -22,10 +22,13 @@ WITH t1 AS (
             MD5(
                 CONCAT(
                     SAFE_CAST(events.user_pseudo_id AS STRING),
-                    SAFE_CAST((SELECT value.int_value FROM UNNEST(events.user_properties) WHERE key = 'ga_session_id') AS STRING)
+                    COALESCE(
+                        SAFE_CAST((SELECT value.int_value FROM UNNEST(events.event_params) WHERE key = 'ga_session_id') AS STRING),
+                        SAFE_CAST((SELECT value.int_value FROM UNNEST(events.user_properties) WHERE key = 'ga_session_id') AS STRING)
                     )
                 )
-            ) AS ga4_session_id,
+            )
+        ) AS ga4_session_id,
         TIMESTAMP_MICROS(events.event_timestamp) AS ga4_user__made__ga4_session__timestamp
     FROM
         {{ source('dbt_package_ga4', 'events') }} AS events
