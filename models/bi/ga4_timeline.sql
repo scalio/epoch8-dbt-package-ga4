@@ -1,6 +1,6 @@
 {{
     config(
-        enabled=true,
+        enabled=false,
         materialized = 'incremental',
         incremental_strategy = 'insert_overwrite',
         partition_by = {
