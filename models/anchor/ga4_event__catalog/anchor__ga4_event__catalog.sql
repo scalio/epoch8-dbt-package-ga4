@@ -1,6 +1,6 @@
 {{
     config(
-        enabled=false,
+        enabled = false,
         materialized = 'incremental',
         incremental_strategy = 'merge',
         unique_key = 'ga4_event_name',
