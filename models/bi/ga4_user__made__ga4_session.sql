@@ -1,6 +1,7 @@
 {{
     config(
-        enabled=true,
+        enabled = env_var('DBT_PACKAGE_GA4__ENABLE__BI', 'false') == 'true',
+        tags = ['dbt_package_ga4', 'bi'],
         materialized = 'incremental',
         incremental_strategy = 'merge',
         unique_key = ['ga4_user_id', 'ga4_session_id'],
