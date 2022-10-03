@@ -1,6 +1,7 @@
 {{
     config(
-        enabled=true,
+        enabled = env_var('DBT_PACKAGE_GA4__ENABLE__BI', 'true') == 'true',
+        tags = ['dbt_package_ga4', 'anchor'],
         materialized = 'incremental',
         incremental_strategy = 'insert_overwrite',
         partition_by = {
