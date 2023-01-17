@@ -30,6 +30,7 @@ clean-targets:         # directories to be removed by `dbt clean`
 #   DBT_PACKAGE_GA4__INTERVAL: 14
 #   DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL: 4
 #   DBT_PACKAGE_GA4__STREAM_ID: ['2059071580', '2771133919']
+#   DBT_PACKAGE_GA4__TIME_ZONE: 'America/Los_Angeles'
 
 
 # Configuring models

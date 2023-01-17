@@ -19,7 +19,7 @@ WITH t1 AS (
     SELECT
         PARSE_DATE('%Y%m%d', _TABLE_SUFFIX) AS ga4_date_partition, 
         events.user_pseudo_id AS ga4_user_id,
-        TIMESTAMP_MICROS(events.event_timestamp) AS ga4_user_properties_timestamp_updated,
+        TIMESTAMP(DATETIME(TIMESTAMP_MICROS(events.event_timestamp)), '{{ env_var('DBT_PACKAGE_GA4__TIME_ZONE', '+00') }}') AS ga4_user_timestamp_updated,
         ga4_user_properties.key AS ga4_user_properties_key,
         ga4_user_properties.value.string_value AS ga4_user_properties_string_value,
         ga4_user_properties.value.int_value AS ga4_user_properties_int_value,
