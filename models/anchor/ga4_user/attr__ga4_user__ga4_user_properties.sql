@@ -19,7 +19,7 @@ WITH t1 AS (
     SELECT
         PARSE_DATE('%Y%m%d', _TABLE_SUFFIX) AS ga4_date_partition, 
         events.user_pseudo_id AS ga4_user_id,
-        TIMESTAMP(DATETIME(TIMESTAMP_MICROS(events.event_timestamp)), '{{ env_var('DBT_PACKAGE_GA4__TIME_ZONE', '+00') }}') AS ga4_user_properties_timestamp_updated,
+        TIMESTAMP(DATETIME(TIMESTAMP_MICROS(events.event_timestamp), '{{ env_var('DBT_PACKAGE_GA4__TIME_ZONE', '+00') }}')) AS ga4_user_properties_timestamp_updated,
         ga4_user_properties.key AS ga4_user_properties_key,
         ga4_user_properties.value.string_value AS ga4_user_properties_string_value,
         ga4_user_properties.value.int_value AS ga4_user_properties_int_value,
@@ -32,7 +32,7 @@ WITH t1 AS (
         UNNEST(events.user_properties) AS ga4_user_properties
     WHERE
         _TABLE_SUFFIX NOT LIKE '%intraday%'
-        AND DATE(TIMESTAMP(DATETIME(TIMESTAMP_MICROS(events.event_timestamp)), '{{ env_var('DBT_PACKAGE_GA4__TIME_ZONE', '+00') }}')) < DATE(CURRENT_DATE())
+        AND DATE(TIMESTAMP(DATETIME(TIMESTAMP_MICROS(events.event_timestamp), '{{ env_var('DBT_PACKAGE_GA4__TIME_ZONE', '+00') }}'))) < DATE(CURRENT_DATE())
         AND PARSE_DATE('%Y%m%d', _TABLE_SUFFIX) > DATE_SUB(DATE(CURRENT_DATE()), INTERVAL {{ env_var('DBT_PACKAGE_GA4__INTERVAL') }} DAY)
         AND events.stream_id IN UNNEST({{ env_var('DBT_PACKAGE_GA4__STREAM_ID') }})
     

@@ -30,7 +30,7 @@ WITH t1 AS (
             )
         ) AS ga4_session_id,
         events.device.category AS ga4_session_device_category,
-        TIMESTAMP(DATETIME(TIMESTAMP_MICROS(events.event_timestamp)), '{{ env_var('DBT_PACKAGE_GA4__TIME_ZONE', '+00') }}') AS ga4_session_appearance_timestamp
+        TIMESTAMP(DATETIME(TIMESTAMP_MICROS(events.event_timestamp), '{{ env_var('DBT_PACKAGE_GA4__TIME_ZONE', '+00') }}')) AS ga4_session_appearance_timestamp
     FROM
         {{ source('dbt_package_ga4', 'events') }} AS events
     WHERE

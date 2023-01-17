@@ -18,7 +18,7 @@ WITH t1 AS (
     SELECT
         PARSE_DATE('%Y%m%d', _TABLE_SUFFIX) AS ga4_date_partition,
         events.user_pseudo_id AS ga4_user_id,
-        TIMESTAMP(DATETIME(TIMESTAMP_MICROS(events.event_timestamp)), '{{ env_var('DBT_PACKAGE_GA4__TIME_ZONE', '+00') }}') AS ga4_user__has__user_id__timestamp,
+        TIMESTAMP(DATETIME(TIMESTAMP_MICROS(events.event_timestamp), '{{ env_var('DBT_PACKAGE_GA4__TIME_ZONE', '+00') }}')) AS ga4_user__has__user_id__timestamp,
         user_id
     FROM
         {{ source('dbt_package_ga4', 'events') }} AS events

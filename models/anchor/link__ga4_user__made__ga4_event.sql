@@ -27,7 +27,7 @@ WITH t1 AS (
                     )
                 )
             ) AS ga4_event_id,
-        TIMESTAMP(DATETIME(TIMESTAMP_MICROS(events.event_timestamp)), '{{ env_var('DBT_PACKAGE_GA4__TIME_ZONE', '+00') }}') AS ga4_user__made__ga4_event__timestamp
+        TIMESTAMP(DATETIME(TIMESTAMP_MICROS(events.event_timestamp), '{{ env_var('DBT_PACKAGE_GA4__TIME_ZONE', '+00') }}')) AS ga4_user__made__ga4_event__timestamp
     FROM
         {{ source('dbt_package_ga4', 'events') }} AS events
     WHERE
