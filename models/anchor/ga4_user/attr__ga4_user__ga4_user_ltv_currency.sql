@@ -19,7 +19,7 @@ WITH t1 AS (
     SELECT
         PARSE_DATE('%Y%m%d', _TABLE_SUFFIX) AS ga4_date_partition,
         events.user_pseudo_id AS ga4_user_id,
-        TIMESTAMP_MICROS(events.event_timestamp) AS ga4_user_timestamp_updated,
+        TIMESTAMP(DATETIME(TIMESTAMP_MICROS(events.event_timestamp)), '{{ env_var('DBT_PACKAGE_GA4__TIME_ZONE', '+00') }}') AS ga4_user_timestamp_updated,
         events.user_ltv.currency AS ga4_user_ltv_currency,
         ROW_NUMBER() OVER(PARTITION BY events.user_pseudo_id ORDER BY events.event_timestamp DESC) AS rn
     FROM

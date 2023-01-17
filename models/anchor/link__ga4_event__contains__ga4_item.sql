@@ -27,7 +27,7 @@ WITH t1 AS (
                 )
             ) AS ga4_event_id,
         item.item_id AS ga4_item_id,
-        TIMESTAMP_MICROS(events.event_timestamp) AS ga4_event__contains__ga4_item__timestamp
+        TIMESTAMP(DATETIME(TIMESTAMP_MICROS(events.event_timestamp)), '{{ env_var('DBT_PACKAGE_GA4__TIME_ZONE', '+00') }}') AS ga4_event__contains__ga4_item__timestamp
     FROM
         {{ source('dbt_package_ga4', 'events') }} AS events,
         UNNEST(events.items) AS item

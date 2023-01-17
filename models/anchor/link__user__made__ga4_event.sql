@@ -26,7 +26,8 @@ WITH t1 AS (
                     SAFE_CAST(events.user_pseudo_id AS STRING)
                     )
                 )
-            ) AS ga4_event_id
+            ) AS ga4_event_id,
+        TIMESTAMP(DATETIME(TIMESTAMP_MICROS(events.event_timestamp)), '{{ env_var('DBT_PACKAGE_GA4__TIME_ZONE', '+00') }}') AS user__made__ga4_event__timestamp
     FROM
         {{ source('dbt_package_ga4', 'events') }} AS events
     WHERE
@@ -44,20 +45,23 @@ t2 AS (
     SELECT
         t1.ga4_date_partition,
         t1.user_id,
-        t1.ga4_event_id
+        t1.ga4_event_id,
+        t1.user__made__ga4_event__timestamp
     FROM
         t1
     WHERE
         t1.ga4_date_partition IS NOT NULL
         AND t1.user_id IS NOT NULL
         AND t1.ga4_event_id IS NOT NULL
+        AND t1.user__made__ga4_event__timestamp IS NOT NULL
 ),
 
 final AS (
     SELECT
         t2.ga4_date_partition,
         t2.user_id,
-        t2.ga4_event_id
+        t2.ga4_event_id,
+        t2.user__made__ga4_event__timestamp
     FROM
         t2
 )

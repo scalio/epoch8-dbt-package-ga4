@@ -18,7 +18,7 @@
 WITH t1 AS (
     SELECT
         PARSE_DATE('%Y%m%d', _TABLE_SUFFIX) AS ga4_date_partition,
-        TIMESTAMP_MICROS(events.event_timestamp) AS ga4_item_timestamp_updated,
+        TIMESTAMP(DATETIME(TIMESTAMP_MICROS(events.event_timestamp)), '{{ env_var('DBT_PACKAGE_GA4__TIME_ZONE', '+00') }}') AS ga4_item_timestamp_updated,
         item.item_id AS ga4_item_id,
         item.item_name AS ga4_item_name,
         item.item_brand AS ga4_item_brand,

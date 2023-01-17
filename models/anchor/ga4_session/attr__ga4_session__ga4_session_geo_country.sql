@@ -30,7 +30,7 @@ WITH t1 AS (
             )
         ) AS ga4_session_id,
         events.geo.country AS ga4_session_geo_country,
-        TIMESTAMP_MICROS(events.event_timestamp) AS ga4_session_appearance_timestamp
+        TIMESTAMP(DATETIME(TIMESTAMP_MICROS(events.event_timestamp)), '{{ env_var('DBT_PACKAGE_GA4__TIME_ZONE', '+00') }}') AS ga4_session_appearance_timestamp
     FROM
         {{ source('dbt_package_ga4', 'events') }} AS events
     WHERE
