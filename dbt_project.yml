@@ -43,5 +43,11 @@ clean-targets:         # directories to be removed by `dbt clean`
 models:
   dbt_package_ga4:
 
+    integration:
+      +dataset: integration
+
     anchor:
       +dataset: anchor
+
+    bi:
+      +dataset: bi
