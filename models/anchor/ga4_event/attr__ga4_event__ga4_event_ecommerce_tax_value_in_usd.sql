@@ -16,7 +16,7 @@
 
 WITH t1 AS (
     SELECT DISTINCT
-        PARSE_DATE('%Y%m%d', _TABLE_SUFFIX) AS ga4_date_partition,
+        PARSE_DATE('%Y%m%d', TABLE_SUFFIX) AS ga4_date_partition,
         TO_HEX(
             MD5(
                 CONCAT(
@@ -28,16 +28,18 @@ WITH t1 AS (
             ) AS ga4_event_id,
         events.ecommerce.tax_value_in_usd AS ga4_event_ecommerce_tax_value_in_usd
     FROM
-        {{ source('dbt_package_ga4', 'events') }} AS events
+        {{ ref('src_ga4__events') }} AS events
     WHERE
-        _TABLE_SUFFIX NOT LIKE '%intraday%'
-        AND PARSE_DATE('%Y%m%d', _TABLE_SUFFIX) > DATE_SUB(DATE(CURRENT_DATE()), INTERVAL {{ env_var('DBT_PACKAGE_GA4__INTERVAL') }} DAY)
+        TABLE_SUFFIX NOT LIKE '%intraday%'
+    {%- if not is_incremental() %}
+        AND PARSE_DATE('%Y%m%d', TABLE_SUFFIX) > DATE_SUB(DATE(CURRENT_DATE()), INTERVAL {{ env_var('DBT_PACKAGE_GA4__INTERVAL') }} DAY)
+    {%- endif %}
         AND events.stream_id IN UNNEST({{ env_var('DBT_PACKAGE_GA4__STREAM_ID') }})
-    
-    {% if is_incremental() %}
-    {% set max_partition_date = macro__get_max_partition_date(this.schema, this.table) %}
-        AND PARSE_DATE('%Y%m%d', _TABLE_SUFFIX) > DATE_SUB(DATE('{{ max_partition_date }}'), INTERVAL {{ env_var('DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
-    {% endif %}
+
+    {%- if is_incremental() %}
+    {%- set max_partition_date = macro__get_max_partition_date(this.schema, this.table) %}
+        AND PARSE_DATE('%Y%m%d', TABLE_SUFFIX) > DATE_SUB(DATE('{{ max_partition_date }}'), INTERVAL {{ env_var('DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
+    {%- endif %}
 ),
 
 t2 AS (

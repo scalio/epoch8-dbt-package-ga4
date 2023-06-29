@@ -17,21 +17,21 @@
 
 WITH t1 AS (
     SELECT
-        PARSE_DATE('%Y%m%d', _TABLE_SUFFIX) AS ga4_date_partition,
+        PARSE_DATE('%Y%m%d', TABLE_SUFFIX) AS ga4_date_partition,
         events.user_pseudo_id AS ga4_user_id,
         TIMESTAMP(DATETIME(TIMESTAMP_MICROS(events.event_timestamp), '{{ env_var('DBT_PACKAGE_GA4__TIME_ZONE', '+00') }}')) AS ga4_user_timestamp_updated,
         ROW_NUMBER() OVER(PARTITION BY events.user_pseudo_id ORDER BY events.event_timestamp DESC) AS rn
     FROM
         {{ source('dbt_package_ga4', 'events') }} AS events
     WHERE
-        _TABLE_SUFFIX NOT LIKE '%intraday%'
+        TABLE_SUFFIX NOT LIKE '%intraday%'
         AND DATE(TIMESTAMP_MICROS(events.user_first_touch_timestamp)) < DATE(CURRENT_DATE())
-        AND PARSE_DATE('%Y%m%d', _TABLE_SUFFIX) > DATE_SUB(DATE(CURRENT_DATE()), INTERVAL {{ env_var('DBT_PACKAGE_GA4__INTERVAL') }} DAY)
+        AND PARSE_DATE('%Y%m%d', TABLE_SUFFIX) > DATE_SUB(DATE(CURRENT_DATE()), INTERVAL {{ env_var('DBT_PACKAGE_GA4__INTERVAL') }} DAY)
         AND events.stream_id IN UNNEST({{ env_var('DBT_PACKAGE_GA4__STREAM_ID') }})
     
     {% if is_incremental() %}
     {% set max_partition_date = macro__get_max_partition_date(this.schema, this.table) %}
-        AND PARSE_DATE('%Y%m%d', _TABLE_SUFFIX) > DATE_SUB(DATE('{{ max_partition_date }}'), INTERVAL {{ env_var('DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
+        AND PARSE_DATE('%Y%m%d', TABLE_SUFFIX) > DATE_SUB(DATE('{{ max_partition_date }}'), INTERVAL {{ env_var('DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
     {% endif %}
 ),
 
