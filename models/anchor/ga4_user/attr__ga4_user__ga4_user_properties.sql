@@ -1,4 +1,4 @@
-{{
+{{-
     config(
         enabled = env_var('DBT_PACKAGE_GA4__ENABLE__ANCHOR', 'true') == 'true',
         tags = ['dbt_package_ga4', 'anchor'],
@@ -12,12 +12,12 @@
         },
         cluster_by = ['ga4_user_id', 'ga4_user_properties_key']
     )
-}}
+-}}
 
 
 WITH t1 AS (
     SELECT
-        PARSE_DATE('%Y%m%d', _TABLE_SUFFIX) AS ga4_date_partition, 
+        PARSE_DATE('%Y%m%d', TABLE_SUFFIX) AS ga4_date_partition,
         events.user_pseudo_id AS ga4_user_id,
         TIMESTAMP(DATETIME(TIMESTAMP_MICROS(events.event_timestamp), '{{ env_var('DBT_PACKAGE_GA4__TIME_ZONE', '+00') }}')) AS ga4_user_properties_timestamp_updated,
         ga4_user_properties.key AS ga4_user_properties_key,
@@ -28,18 +28,19 @@ WITH t1 AS (
         TIMESTAMP_MICROS(ga4_user_properties.value.set_timestamp_micros) AS ga4_user_properties_set_timestamp,
         ROW_NUMBER() OVER(PARTITION BY events.user_pseudo_id, ga4_user_properties.key ORDER BY events.event_timestamp DESC) AS rn
     FROM
-        {{ source('dbt_package_ga4', 'events') }} AS events,
+        {{ ref('src_ga4__events') }} AS events,
         UNNEST(events.user_properties) AS ga4_user_properties
     WHERE
-        _TABLE_SUFFIX NOT LIKE '%intraday%'
+        TABLE_SUFFIX NOT LIKE '%intraday%'
         AND DATE(TIMESTAMP(DATETIME(TIMESTAMP_MICROS(events.event_timestamp), '{{ env_var('DBT_PACKAGE_GA4__TIME_ZONE', '+00') }}'))) < DATE(CURRENT_DATE())
-        AND PARSE_DATE('%Y%m%d', _TABLE_SUFFIX) > DATE_SUB(DATE(CURRENT_DATE()), INTERVAL {{ env_var('DBT_PACKAGE_GA4__INTERVAL') }} DAY)
-        AND events.stream_id IN UNNEST({{ env_var('DBT_PACKAGE_GA4__STREAM_ID') }})
+    {%- if not is_incremental() %}
+        AND PARSE_DATE('%Y%m%d', TABLE_SUFFIX) > DATE_SUB(DATE(CURRENT_DATE()), INTERVAL {{ env_var('DBT_PACKAGE_GA4__INTERVAL') }} DAY)
+    {%- endif %}
     
-    {% if is_incremental() %}
-    {% set max_partition_date = macro__get_max_partition_date(this.schema, this.table) %}
-        AND PARSE_DATE('%Y%m%d', _TABLE_SUFFIX) > DATE_SUB(DATE('{{ max_partition_date }}'), INTERVAL {{ env_var('DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
-    {% endif %}
+    {%- if is_incremental() %}
+    {%- set max_partition_date = macro__get_max_partition_date(this.schema, this.table) %}
+        AND PARSE_DATE('%Y%m%d', TABLE_SUFFIX) > DATE_SUB(DATE('{{ max_partition_date }}'), INTERVAL {{ env_var('DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
+    {%- endif %}
 ),
 
 t2 AS (
@@ -80,7 +81,7 @@ final AS (
 
 SELECT * FROM final
 
-    {% if is_incremental() %}
+    {%- if is_incremental() %}
     WHERE
         final.ga4_user_properties_timestamp_updated > COALESCE((
             SELECT
@@ -91,4 +92,4 @@ SELECT * FROM final
                 this.ga4_user_id = final.ga4_user_id
                 AND this.ga4_user_properties_key = final.ga4_user_properties_key
         ), TIMESTAMP('1900-01-01'))
-    {% endif %}
+    {%- endif %}
