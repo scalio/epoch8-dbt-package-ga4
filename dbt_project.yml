@@ -25,12 +25,13 @@ clean-targets:         # directories to be removed by `dbt clean`
   - "dbt_packages"
 
 # vars:
-#   DBT_PACKAGE_GA4__PROJECT: "holybricks"
-#   DBT_PACKAGE_GA4__DATASET: "analytics_202294062"
+#   DBT_PACKAGE_GA4__PROJECT: "commonwealth-356813"
+#   DBT_PACKAGE_GA4__DATASET: "analytics_375681484"
+#   DBT_PACKAGE_GA4__DATASETS: "analytics_375681484,analytics_247024976"
 #   DBT_PACKAGE_GA4__INTERVAL: 14
 #   DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL: 4
-#   DBT_PACKAGE_GA4__STREAM_ID: ['2059071580', '2771133919']
-#   DBT_PACKAGE_GA4__TIME_ZONE: 'America/Los_Angeles'
+#   DBT_PACKAGE_GA4__STREAM_ID: "['2059071580', '5200866205', '5200058214']"
+#   DBT_PACKAGE_GA4__TIME_ZONE: "America/Los_Angeles"
 
 
 # Configuring models
