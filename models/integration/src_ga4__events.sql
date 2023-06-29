@@ -13,6 +13,8 @@ WITH raw AS (
         events.*
     FROM
         {{ source('dbt_package_ga4', 'events') }} AS events
+    WHERE
+        events.stream_id IN UNNEST({{ env_var('DBT_PACKAGE_GA4__STREAM_ID') }})
 )
 
 SELECT * FROM raw

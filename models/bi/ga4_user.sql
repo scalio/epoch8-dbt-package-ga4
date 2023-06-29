@@ -1,4 +1,4 @@
-{{
+{{-
     config(
         enabled = env_var('DBT_PACKAGE_GA4__ENABLE__BI', 'false') == 'true',
         tags = ['dbt_package_ga4', 'bi'],
@@ -12,7 +12,7 @@
         },
         cluster_by = 'ga4_user_id'
     )
-}}
+-}}
 
 
 WITH ga4_user_first_touch_timestamp AS (
@@ -22,11 +22,11 @@ WITH ga4_user_first_touch_timestamp AS (
     FROM
         {{ ref('attr__ga4_user__ga4_user_first_touch_timestamp') }} AS ga4_user_first_touch_timestamp
     
-    {% if is_incremental() %}
-    {% set max_partition_date = macro__get_max_partition_date(this.schema, this.table) %}
+    {%- if is_incremental() %}
+    {%- set max_partition_date = macro__get_max_partition_date(this.schema, this.table) %}
     WHERE
         ga4_user_first_touch_timestamp.ga4_date_partition > DATE_SUB(DATE('{{ max_partition_date }}'), INTERVAL {{ env_var('DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
-    {% endif %}
+    {%- endif %}
 ),
 
 ga4_user_ltv_revenue AS (
@@ -36,10 +36,10 @@ ga4_user_ltv_revenue AS (
     FROM
         {{ ref('attr__ga4_user__ga4_user_ltv_revenue') }} AS ga4_user_ltv_revenue
     
-    {% if is_incremental() %}
+    {%- if is_incremental() %}
     WHERE
         ga4_user_ltv_revenue.ga4_date_partition > DATE_SUB(DATE('{{ max_partition_date }}'), INTERVAL {{ env_var('DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
-    {% endif %}
+    {%- endif %}
 ),
 
 ga4_user_ltv_currency AS (
@@ -49,10 +49,10 @@ ga4_user_ltv_currency AS (
     FROM
         {{ ref('attr__ga4_user__ga4_user_ltv_currency') }} AS ga4_user_ltv_currency
     
-    {% if is_incremental() %}
+    {%- if is_incremental() %}
     WHERE
         ga4_user_ltv_currency.ga4_date_partition > DATE_SUB(DATE('{{ max_partition_date }}'), INTERVAL {{ env_var('DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
-    {% endif %}
+    {%- endif %}
 ),
 
 ga4_user_privacy_info_ads_storage AS (
@@ -62,10 +62,10 @@ ga4_user_privacy_info_ads_storage AS (
     FROM
         {{ ref('attr__ga4_user__ga4_user_privacy_info_ads_storage') }} AS ga4_user_privacy_info_ads_storage
     
-    {% if is_incremental() %}
+    {%- if is_incremental() %}
     WHERE
         ga4_user_privacy_info_ads_storage.ga4_date_partition > DATE_SUB(DATE('{{ max_partition_date }}'), INTERVAL {{ env_var('DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
-    {% endif %}
+    {%- endif %}
 ),
 
 ga4_user_privacy_info_analytics_storage AS (
@@ -75,10 +75,10 @@ ga4_user_privacy_info_analytics_storage AS (
     FROM
         {{ ref('attr__ga4_user__ga4_user_privacy_info_analytics_storage') }} AS ga4_user_privacy_info_analytics_storage
     
-    {% if is_incremental() %}
+    {%- if is_incremental() %}
     WHERE
         ga4_user_privacy_info_analytics_storage.ga4_date_partition > DATE_SUB(DATE('{{ max_partition_date }}'), INTERVAL {{ env_var('DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
-    {% endif %}
+    {%- endif %}
 ),
 
 ga4_user_privacy_info_uses_transient_token AS (
@@ -88,10 +88,10 @@ ga4_user_privacy_info_uses_transient_token AS (
     FROM
         {{ ref('attr__ga4_user__ga4_user_privacy_info_uses_transient_token') }} AS ga4_user_privacy_info_uses_transient_token
     
-    {% if is_incremental() %}
+    {%- if is_incremental() %}
     WHERE
         ga4_user_privacy_info_uses_transient_token.ga4_date_partition > DATE_SUB(DATE('{{ max_partition_date }}'), INTERVAL {{ env_var('DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
-    {% endif %}
+    {%- endif %}
 ),
 
 t1 AS (
@@ -125,7 +125,7 @@ t1 AS (
         LEFT JOIN ga4_user_privacy_info_uses_transient_token
             ON ga4_user_privacy_info_uses_transient_token.ga4_user_id = ga4_user.ga4_user_id
     
-    {% if is_incremental() %}
+    {%- if is_incremental() %}
     WHERE
         ga4_user.ga4_date_partition > DATE_SUB(DATE('{{ max_partition_date }}'), INTERVAL {{ env_var('DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
         -- OR ga4_user_first_touch_timestamp.ga4_date_partition > DATE_SUB(DATE('{{ max_partition_date }}'), INTERVAL {{ env_var('DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
@@ -134,7 +134,7 @@ t1 AS (
         -- OR ga4_user_privacy_info_ads_storage.ga4_date_partition > DATE_SUB(DATE('{{ max_partition_date }}'), INTERVAL {{ env_var('DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
         -- OR ga4_user_privacy_info_analytics_storage.ga4_date_partition > DATE_SUB(DATE('{{ max_partition_date }}'), INTERVAL {{ env_var('DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
         -- OR ga4_user_privacy_info_uses_transient_token.ga4_date_partition > DATE_SUB(DATE('{{ max_partition_date }}'), INTERVAL {{ env_var('DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
-    {% endif %}
+    {%- endif %}
 ),
 
 final AS (
@@ -153,7 +153,7 @@ final AS (
 
 SELECT * FROM final
 
-    {% if is_incremental() %}
+    {%- if is_incremental() %}
     WHERE
         final.ga4_user_timestamp_updated > COALESCE((
             SELECT
@@ -163,4 +163,4 @@ SELECT * FROM final
             WHERE
                 this.ga4_user_id = final.ga4_user_id
         ), TIMESTAMP('1900-01-01'))
-    {% endif %}
+    {%- endif %}

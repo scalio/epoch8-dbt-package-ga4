@@ -1,4 +1,4 @@
-{{
+{{-
     config(
         enabled = env_var('DBT_PACKAGE_GA4__ENABLE__ANCHOR', 'true') == 'true',
         tags = ['dbt_package_ga4', 'anchor'],
@@ -12,7 +12,7 @@
         },
         cluster_by = 'ga4_item_id'
     )
-}}
+-}}
 
 
 WITH t1 AS (
@@ -46,17 +46,18 @@ WITH t1 AS (
         item.creative_name AS ga4_item_creative_name,
         item.creative_slot AS ga4_item_creative_slot
     FROM
-        {{ source('dbt_package_ga4', 'events') }} AS events,
+        {{ ref('src_ga4__events') }} AS events,
         UNNEST(events.items) AS item
     WHERE
         TABLE_SUFFIX NOT LIKE '%intraday%'
+    {%- if not is_incremental() %}
         AND PARSE_DATE('%Y%m%d', TABLE_SUFFIX) > DATE_SUB(DATE(CURRENT_DATE()), INTERVAL {{ env_var('DBT_PACKAGE_GA4__INTERVAL') }} DAY)
-        AND events.stream_id IN UNNEST({{ env_var('DBT_PACKAGE_GA4__STREAM_ID') }})
-    
-    {% if is_incremental() %}
-    {% set max_partition_date = macro__get_max_partition_date(this.schema, this.table) %}
+    {%- endif %}
+
+    {%- if is_incremental() %}
+    {%- set max_partition_date = macro__get_max_partition_date(this.schema, this.table) %}
         AND PARSE_DATE('%Y%m%d', TABLE_SUFFIX) > DATE_SUB(DATE('{{ max_partition_date }}'), INTERVAL {{ env_var('DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
-    {% endif %}
+    {%- endif %}
 ),
 
 t2 AS (
@@ -171,7 +172,7 @@ final AS (
 
 SELECT * FROM final
 
-    {% if is_incremental() %}
+    {%- if is_incremental() %}
     WHERE
         final.ga4_item_timestamp_updated > COALESCE((
             SELECT
@@ -181,4 +182,4 @@ SELECT * FROM final
             WHERE
                 this.ga4_item_id = final.ga4_item_id
         ), TIMESTAMP('1900-01-01'))
-    {% endif %}
+    {%- endif %}

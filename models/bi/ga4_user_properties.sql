@@ -1,4 +1,4 @@
-{{
+{{-
     config(
         enabled = env_var('DBT_PACKAGE_GA4__ENABLE__BI', 'false') == 'true',
         tags = ['dbt_package_ga4', 'bi'],
@@ -12,7 +12,7 @@
         },
         cluster_by = ['ga4_user_id', 'ga4_user_properties_key']
     )
-}}
+-}}
 
 
 WITH t1 AS (
@@ -28,11 +28,11 @@ WITH t1 AS (
     FROM
         {{ ref('attr__ga4_user__ga4_user_properties') }} AS ga4_user_properties
     
-    {% if is_incremental() %}
-    {% set max_partition_date = macro__get_max_partition_date(this.schema, this.table) %}
+    {%- if is_incremental() %}
+    {%- set max_partition_date = macro__get_max_partition_date(this.schema, this.table) %}
     WHERE
         ga4_user_properties.ga4_date_partition > DATE_SUB(DATE('{{ max_partition_date }}'), INTERVAL {{ env_var('DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
-    {% endif %}
+    {%- endif %}
 ),
 
 final AS (
@@ -51,7 +51,7 @@ final AS (
 
 SELECT * FROM final
 
-    {% if is_incremental() %}
+    {%- if is_incremental() %}
     WHERE
         final.ga4_user_properties_timestamp_updated > COALESCE((
             SELECT
@@ -62,4 +62,4 @@ SELECT * FROM final
                 this.ga4_user_id = final.ga4_user_id
                 AND this.ga4_user_properties_key = final.ga4_user_properties_key
         ), TIMESTAMP('1900-01-01'))
-    {% endif %}
+    {%- endif %}

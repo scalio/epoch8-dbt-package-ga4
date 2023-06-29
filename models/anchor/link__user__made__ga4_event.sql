@@ -29,11 +29,12 @@ WITH t1 AS (
             ) AS ga4_event_id,
         TIMESTAMP(DATETIME(TIMESTAMP_MICROS(events.event_timestamp), '{{ env_var('DBT_PACKAGE_GA4__TIME_ZONE', '+00') }}')) AS user__made__ga4_event__timestamp
     FROM
-        {{ source('dbt_package_ga4', 'events') }} AS events
+        {{ ref('src_ga4__events') }} AS events
     WHERE
         TABLE_SUFFIX NOT LIKE '%intraday%'
+    {%- if not is_incremental() %}
         AND PARSE_DATE('%Y%m%d', TABLE_SUFFIX) > DATE_SUB(DATE(CURRENT_DATE()), INTERVAL {{ env_var('DBT_PACKAGE_GA4__INTERVAL') }} DAY)
-        AND events.stream_id IN UNNEST({{ env_var('DBT_PACKAGE_GA4__STREAM_ID') }})
+    {%- endif %}
     
     {%- if is_incremental() %}
     {%- set max_partition_date = macro__get_max_partition_date(this.schema, this.table) %}

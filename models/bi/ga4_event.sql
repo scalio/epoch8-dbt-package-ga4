@@ -1,4 +1,4 @@
-{{
+{{-
     config(
         enabled = env_var('DBT_PACKAGE_GA4__ENABLE__BI', 'false') == 'true',
         tags = ['dbt_package_ga4', 'bi'],
@@ -11,7 +11,7 @@
         },
         cluster_by = 'ga4_event_id'
     )
-}}
+-}}
 
 
 WITH ga4_event_date AS (
@@ -21,11 +21,11 @@ WITH ga4_event_date AS (
     FROM
         {{ ref('attr__ga4_event__ga4_event_date') }} AS ga4_event_date
 
-    {% if is_incremental() %}
-    {% set max_partition_date = macro__get_max_partition_date(this.schema, this.table) %}
+    {%- if is_incremental() %}
+    {%- set max_partition_date = macro__get_max_partition_date(this.schema, this.table) %}
     WHERE
         ga4_event_date.ga4_date_partition > DATE_SUB(DATE('{{ max_partition_date }}'), INTERVAL {{ env_var('DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} + 1 DAY)
-    {% endif %}
+    {%- endif %}
 ),
 
 ga4_event_timestamp AS (
@@ -35,10 +35,10 @@ ga4_event_timestamp AS (
     FROM
         {{ ref('attr__ga4_event__ga4_event_timestamp') }} AS ga4_event_timestamp
 
-    {% if is_incremental() %}
+    {%- if is_incremental() %}
     WHERE
         ga4_event_timestamp.ga4_date_partition > DATE_SUB(DATE('{{ max_partition_date }}'), INTERVAL {{ env_var('DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} + 1 DAY)
-    {% endif %}
+    {%- endif %}
 ),
 
 ga4_event_name AS (
@@ -48,10 +48,10 @@ ga4_event_name AS (
     FROM
         {{ ref('attr__ga4_event__ga4_event_name') }} AS ga4_event_name
 
-    {% if is_incremental() %}
+    {%- if is_incremental() %}
     WHERE
         ga4_event_name.ga4_date_partition > DATE_SUB(DATE('{{ max_partition_date }}'), INTERVAL {{ env_var('DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} + 1 DAY)
-    {% endif %}
+    {%- endif %}
 ),
 
 ga4_event_previous_timestamp AS (
@@ -61,10 +61,10 @@ ga4_event_previous_timestamp AS (
     FROM
         {{ ref('attr__ga4_event__ga4_event_previous_timestamp') }} AS ga4_event_previous_timestamp
 
-    {% if is_incremental() %}
+    {%- if is_incremental() %}
     WHERE
         ga4_event_previous_timestamp.ga4_date_partition > DATE_SUB(DATE('{{ max_partition_date }}'), INTERVAL {{ env_var('DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} + 1 DAY)
-    {% endif %}
+    {%- endif %}
 ),
 
 ga4_event_value_in_usd AS (
@@ -74,10 +74,10 @@ ga4_event_value_in_usd AS (
     FROM
         {{ ref('attr__ga4_event__ga4_event_value_in_usd') }} AS ga4_event_value_in_usd
 
-    {% if is_incremental() %}
+    {%- if is_incremental() %}
     WHERE
         ga4_event_value_in_usd.ga4_date_partition > DATE_SUB(DATE('{{ max_partition_date }}'), INTERVAL {{ env_var('DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} + 1 DAY)
-    {% endif %}
+    {%- endif %}
 ),
 
 ga4_event_bundle_sequence_id AS (
@@ -87,10 +87,10 @@ ga4_event_bundle_sequence_id AS (
     FROM
         {{ ref('attr__ga4_event__ga4_event_bundle_sequence_id') }} AS ga4_event_bundle_sequence_id
 
-    {% if is_incremental() %}
+    {%- if is_incremental() %}
     WHERE
         ga4_event_bundle_sequence_id.ga4_date_partition > DATE_SUB(DATE('{{ max_partition_date }}'), INTERVAL {{ env_var('DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} + 1 DAY)
-    {% endif %}
+    {%- endif %}
 ),
 
 ga4_event_server_timestamp_offset AS (
@@ -100,10 +100,10 @@ ga4_event_server_timestamp_offset AS (
     FROM
         {{ ref('attr__ga4_event__ga4_event_server_timestamp_offset') }} AS ga4_event_server_timestamp_offset
 
-    {% if is_incremental() %}
+    {%- if is_incremental() %}
     WHERE
         ga4_event_server_timestamp_offset.ga4_date_partition > DATE_SUB(DATE('{{ max_partition_date }}'), INTERVAL {{ env_var('DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} + 1 DAY)
-    {% endif %}
+    {%- endif %}
 ),
 
 ga4_event_ecommerce_total_item_quantity AS (
@@ -113,10 +113,10 @@ ga4_event_ecommerce_total_item_quantity AS (
     FROM
         {{ ref('attr__ga4_event__ga4_event_ecommerce_total_item_quantity') }} AS ga4_event_ecommerce_total_item_quantity
 
-    {% if is_incremental() %}
+    {%- if is_incremental() %}
     WHERE
         ga4_event_ecommerce_total_item_quantity.ga4_date_partition > DATE_SUB(DATE('{{ max_partition_date }}'), INTERVAL {{ env_var('DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} + 1 DAY)
-    {% endif %}
+    {%- endif %}
 ),
 
 ga4_event_ecommerce_purchase_revenue_in_usd AS (
@@ -126,10 +126,10 @@ ga4_event_ecommerce_purchase_revenue_in_usd AS (
     FROM
         {{ ref('attr__ga4_event__ga4_event_ecommerce_purchase_revenue_in_usd') }} AS ga4_event_ecommerce_purchase_revenue_in_usd
 
-    {% if is_incremental() %}
+    {%- if is_incremental() %}
     WHERE
         ga4_event_ecommerce_purchase_revenue_in_usd.ga4_date_partition > DATE_SUB(DATE('{{ max_partition_date }}'), INTERVAL {{ env_var('DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} + 1 DAY)
-    {% endif %}
+    {%- endif %}
 ),
 
 ga4_event_ecommerce_purchase_revenue AS (
@@ -139,10 +139,10 @@ ga4_event_ecommerce_purchase_revenue AS (
     FROM
         {{ ref('attr__ga4_event__ga4_event_ecommerce_purchase_revenue') }} AS ga4_event_ecommerce_purchase_revenue
 
-    {% if is_incremental() %}
+    {%- if is_incremental() %}
     WHERE
         ga4_event_ecommerce_purchase_revenue.ga4_date_partition > DATE_SUB(DATE('{{ max_partition_date }}'), INTERVAL {{ env_var('DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} + 1 DAY)
-    {% endif %}
+    {%- endif %}
 ),
 
 ga4_event_ecommerce_refund_value_in_usd AS (
@@ -152,10 +152,10 @@ ga4_event_ecommerce_refund_value_in_usd AS (
     FROM
         {{ ref('attr__ga4_event__ga4_event_ecommerce_refund_value_in_usd') }} AS ga4_event_ecommerce_refund_value_in_usd
 
-    {% if is_incremental() %}
+    {%- if is_incremental() %}
     WHERE
         ga4_event_ecommerce_refund_value_in_usd.ga4_date_partition > DATE_SUB(DATE('{{ max_partition_date }}'), INTERVAL {{ env_var('DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} + 1 DAY)
-    {% endif %}
+    {%- endif %}
 ),
 
 ga4_event_ecommerce_refund_value AS (
@@ -165,10 +165,10 @@ ga4_event_ecommerce_refund_value AS (
     FROM
         {{ ref('attr__ga4_event__ga4_event_ecommerce_refund_value') }} AS ga4_event_ecommerce_refund_value
 
-    {% if is_incremental() %}
+    {%- if is_incremental() %}
     WHERE
         ga4_event_ecommerce_refund_value.ga4_date_partition > DATE_SUB(DATE('{{ max_partition_date }}'), INTERVAL {{ env_var('DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} + 1 DAY)
-    {% endif %}
+    {%- endif %}
 ),
 
 ga4_event_ecommerce_shipping_value_in_usd AS (
@@ -178,10 +178,10 @@ ga4_event_ecommerce_shipping_value_in_usd AS (
     FROM
         {{ ref('attr__ga4_event__ga4_event_ecommerce_shipping_value_in_usd') }} AS ga4_event_ecommerce_shipping_value_in_usd
 
-    {% if is_incremental() %}
+    {%- if is_incremental() %}
     WHERE
         ga4_event_ecommerce_shipping_value_in_usd.ga4_date_partition > DATE_SUB(DATE('{{ max_partition_date }}'), INTERVAL {{ env_var('DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} + 1 DAY)
-    {% endif %}
+    {%- endif %}
 ),
 
 ga4_event_ecommerce_shipping_value AS (
@@ -191,10 +191,10 @@ ga4_event_ecommerce_shipping_value AS (
     FROM
         {{ ref('attr__ga4_event__ga4_event_ecommerce_shipping_value') }} AS ga4_event_ecommerce_shipping_value
 
-    {% if is_incremental() %}
+    {%- if is_incremental() %}
     WHERE
         ga4_event_ecommerce_shipping_value.ga4_date_partition > DATE_SUB(DATE('{{ max_partition_date }}'), INTERVAL {{ env_var('DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} + 1 DAY)
-    {% endif %}
+    {%- endif %}
 ),
 
 ga4_event_ecommerce_tax_value_in_usd AS (
@@ -204,10 +204,10 @@ ga4_event_ecommerce_tax_value_in_usd AS (
     FROM
         {{ ref('attr__ga4_event__ga4_event_ecommerce_tax_value_in_usd') }} AS ga4_event_ecommerce_tax_value_in_usd
 
-    {% if is_incremental() %}
+    {%- if is_incremental() %}
     WHERE
         ga4_event_ecommerce_tax_value_in_usd.ga4_date_partition > DATE_SUB(DATE('{{ max_partition_date }}'), INTERVAL {{ env_var('DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} + 1 DAY)
-    {% endif %}
+    {%- endif %}
 ),
 
 ga4_event_ecommerce_tax_value AS (
@@ -217,10 +217,10 @@ ga4_event_ecommerce_tax_value AS (
     FROM
         {{ ref('attr__ga4_event__ga4_event_ecommerce_tax_value') }} AS ga4_event_ecommerce_tax_value
 
-    {% if is_incremental() %}
+    {%- if is_incremental() %}
     WHERE
         ga4_event_ecommerce_tax_value.ga4_date_partition > DATE_SUB(DATE('{{ max_partition_date }}'), INTERVAL {{ env_var('DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} + 1 DAY)
-    {% endif %}
+    {%- endif %}
 ),
 
 ga4_event_ecommerce_transaction_id AS (
@@ -230,10 +230,10 @@ ga4_event_ecommerce_transaction_id AS (
     FROM
         {{ ref('attr__ga4_event__ga4_event_ecommerce_transaction_id') }} AS ga4_event_ecommerce_transaction_id
 
-    {% if is_incremental() %}
+    {%- if is_incremental() %}
     WHERE
         ga4_event_ecommerce_transaction_id.ga4_date_partition > DATE_SUB(DATE('{{ max_partition_date }}'), INTERVAL {{ env_var('DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} + 1 DAY)
-    {% endif %}
+    {%- endif %}
 ),
 
 ga4_event_ecommerce_unique_items AS (
@@ -243,10 +243,10 @@ ga4_event_ecommerce_unique_items AS (
     FROM
         {{ ref('attr__ga4_event__ga4_event_ecommerce_unique_items') }} AS ga4_event_ecommerce_unique_items
 
-    {% if is_incremental() %}
+    {%- if is_incremental() %}
     WHERE
         ga4_event_ecommerce_unique_items.ga4_date_partition > DATE_SUB(DATE('{{ max_partition_date }}'), INTERVAL {{ env_var('DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} + 1 DAY)
-    {% endif %}
+    {%- endif %}
 ),
 
 t1 AS (
@@ -327,7 +327,7 @@ t1 AS (
         LEFT JOIN ga4_event_ecommerce_unique_items
             ON ga4_event_ecommerce_unique_items.ga4_event_id = ga4_event.ga4_event_id
     
-    {% if is_incremental() %}
+    {%- if is_incremental() %}
     WHERE
         ga4_event.ga4_date_partition > DATE_SUB(DATE('{{ max_partition_date }}'), INTERVAL {{ env_var('DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} + 1 DAY)
         -- AND ga4_event_date.ga4_date_partition > DATE_SUB(DATE('{{ max_partition_date }}'), INTERVAL {{ env_var('DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} + 1 DAY)
@@ -349,7 +349,7 @@ t1 AS (
         -- AND ga4_event_ecommerce_transaction_id.ga4_date_partition > DATE_SUB(DATE('{{ max_partition_date }}'), INTERVAL {{ env_var('DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} + 1 DAY)
         -- AND ga4_event_ecommerce_unique_items.ga4_date_partition > DATE_SUB(DATE('{{ max_partition_date }}'), INTERVAL {{ env_var('DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} + 1 DAY)
         -- AND DATE(ga4_event_timestamp.ga4_event_timestamp) > DATE_SUB(DATE('{{ max_partition_date }}'), INTERVAL {{ env_var('DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
-    {% endif %}
+    {%- endif %}
 ),
 
 final AS (
@@ -379,7 +379,7 @@ final AS (
 
 SELECT * FROM final
 
-    {% if is_incremental() %}
+    {%- if is_incremental() %}
     WHERE
         DATE(final.ga4_event_timestamp) > DATE_SUB(DATE('{{ max_partition_date }}'), INTERVAL {{ env_var('DBT_PACKAGE_GA4__INTERVAL_INCREMENTAL') }} DAY)
-    {% endif %}
+    {%- endif %}

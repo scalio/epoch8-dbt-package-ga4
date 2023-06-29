@@ -1,4 +1,4 @@
-{{
+{{-
     config(
         enabled = env_var('DBT_PACKAGE_GA4__ENABLE__ANCHOR', 'true') == 'true',
         tags = ['dbt_package_ga4', 'anchor'],
@@ -12,7 +12,7 @@
         },
         cluster_by = 'ga4_session_id'
     )
-}}
+-}}
 
 
 WITH t1 AS (
@@ -41,7 +41,6 @@ WITH t1 AS (
     {%- if not is_incremental() %}
         AND PARSE_DATE('%Y%m%d', TABLE_SUFFIX) > DATE_SUB(DATE(CURRENT_DATE()), INTERVAL {{ env_var('DBT_PACKAGE_GA4__INTERVAL') }} DAY)
     {%- endif %}
-        AND events.stream_id IN UNNEST({{ env_var('DBT_PACKAGE_GA4__STREAM_ID') }})
 
     {%- if is_incremental() %}
     {%- set max_partition_date = macro__get_max_partition_date(this.schema, this.table) %}
@@ -90,7 +89,7 @@ final AS (
 
 SELECT * FROM final
 
-    {% if is_incremental() %}
+    {%- if is_incremental() %}
     WHERE
         final.ga4_session_appearance_timestamp < COALESCE((
             SELECT
@@ -100,4 +99,4 @@ SELECT * FROM final
             WHERE
                 this.ga4_session_id = final.ga4_session_id
         ), TIMESTAMP(CURRENT_DATE()))
-    {% endif %}
+    {%- endif %}
